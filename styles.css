@@ -277,15 +277,18 @@ section {
   filter: contrast(1.05);
 }
 
-/* birds are already monochrome vectors — keep edges crisp */
-.scene__svg--birds {
+/* inlined vector scenes — keep vector edges crisp, fill the stage */
+.scene__svg--vector {
   filter: none;
+  background: #000;
 }
-.bird__wing,
-.bird__body {
-  fill: var(--bone);
+.scene__svg--vector svg {
+  width: 100%;
+  height: 100%;
+  display: block;
 }
-.bird__wing {
+#left-wing,
+#right-wing {
   will-change: transform;
 }
 
@@ -427,20 +430,17 @@ section {
   padding: 12vh 6vw;
 }
 
-/* Placeholder frame — swap for a traced portrait/SVG */
+/* Norén portrait — holds the inlined lars.svg (blinks + breathes) */
 .memorial__portrait {
-  width: min(42vmin, 300px);
-  aspect-ratio: 3 / 4;
-  margin-bottom: 2rem;
-  border: 1px solid rgba(232, 228, 218, 0.22);
-  background: radial-gradient(
-    ellipse at 50% 40%,
-    rgba(232, 228, 218, 0.08),
-    transparent 70%
-  );
-  filter: var(--film);
-  background-size: cover;
-  background-position: center;
+  width: min(52vmin, 380px);
+  aspect-ratio: 1479 / 1074;
+  margin-bottom: 1.5rem;
+}
+.memorial__portrait svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+  overflow: visible;
 }
 
 .memorial__kicker {

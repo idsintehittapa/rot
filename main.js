@@ -143,71 +143,150 @@
   }
 
   /* ------------------------------------------------------------------ */
-  /* 3. Bird flock — rigged SVG (body + two wings that flap)            */
-  /* Scroll scrubs each bird's flight arc; wings flap on their own      */
-  /* time-based loop, desynced per bird (no lifeless "twinning").       */
+  /* 3. Rigged SVG scenes — load the vector art, then animate its parts  */
+  /* Each [data-svg] mount is inlined so GSAP can reach named parts      */
+  /* (#left-wing, #ribs, #l-left, ...). Rigs run after the art loads.    */
   /* ------------------------------------------------------------------ */
-  const flock = document.getElementById('birdFlock');
-  if (flock) {
-    const SVGNS = 'http://www.w3.org/2000/svg';
-    const birdMarkup =
-      '<path class="bird__wing bird__wing--l" d="M50 30 C34 12 14 12 2 26 C20 24 36 28 50 33 Z"/>' +
-      '<path class="bird__wing bird__wing--r" d="M50 30 C66 12 86 12 98 26 C80 24 64 28 50 33 Z"/>' +
-      '<ellipse class="bird__body" cx="50" cy="31" rx="5.5" ry="3.4"/>';
-
-    const N = 8;
-    const birds = [];
-    for (let i = 0; i < N; i++) {
-      const g = document.createElementNS(SVGNS, 'g');
-      g.setAttribute('class', 'bird');
-      g.innerHTML = birdMarkup;
-      flock.appendChild(g);
-      birds.push(g);
-    }
-
-    const flyTl = gsap.timeline({
-      scrollTrigger: {
-        trigger: '#sceneBirds',
-        start: 'top bottom',
-        end: 'bottom top',
-        scrub: 0.8,
-      },
-    });
-
-    birds.forEach((g, i) => {
-      const scale = gsap.utils.random(0.5, 1.35);
-      const baseY = gsap.utils.random(120, 540);
-      const startX = gsap.utils.random(-420, -120);
-      const endX = 1360 + gsap.utils.random(0, 320);
-      gsap.set(g, { x: startX, y: baseY, scale, transformOrigin: '50% 50%' });
-
-      // flight path: cross the stage while drifting upward (toward the light)
-      flyTl.to(
-        g,
-        {
-          x: endX,
-          y: baseY - gsap.utils.random(50, 140),
-          ease: 'none',
-          duration: 1,
-        },
-        i * 0.06,
-      );
-
-      if (prefersReduced) return;
-
-      // wing flap — continuous, each bird its own cadence and phase
-      const wl = g.querySelector('.bird__wing--l');
-      const wr = g.querySelector('.bird__wing--r');
-      gsap.set(wl, { transformOrigin: 'right center' });
-      gsap.set(wr, { transformOrigin: 'left center' });
-      const beat = gsap.utils.random(0.28, 0.42);
+  // Birds: the hand-shadow dove flaps its wings; the whole frame drifts.
+  function rigBirds(mount, get) {
+    const wl = get('left-wing');
+    const wr = get('right-wing');
+    if (!wl || !wr) return;
+    gsap.set(wl, { transformOrigin: '100% 0%' });
+    gsap.set(wr, { transformOrigin: '0% 100%' });
+    if (!prefersReduced) {
       gsap
         .timeline({ repeat: -1, yoyo: true, defaults: { ease: 'sine.inOut' } })
-        .fromTo(wl, { rotation: 16 }, { rotation: -30, duration: beat }, 0)
-        .fromTo(wr, { rotation: -16 }, { rotation: 30, duration: beat }, 0)
-        .progress(Math.random());
-    });
+        .fromTo(wl, { rotation: 6 }, { rotation: -13, duration: 0.9 }, 0)
+        .fromTo(wr, { rotation: -6 }, { rotation: 15, duration: 0.9 }, 0);
+    }
+    const svg = mount.querySelector('svg');
+    if (svg) {
+      gsap.fromTo(
+        svg,
+        { scale: 1, transformOrigin: '28% 58%' },
+        {
+          scale: 1.08,
+          ease: 'none',
+          scrollTrigger: {
+            trigger: '#sceneBirds',
+            start: 'top top',
+            end: 'bottom bottom',
+            scrub: 0.6,
+          },
+        },
+      );
+    }
   }
+
+  // Skeleton: ribs breathe; pupils drift; a slow, uneasy stare.
+  function rigSkeleton(mount, get) {
+    if (prefersReduced) return;
+    ['ribs', 'chair-ribs'].forEach((id, i) => {
+      const el = get(id);
+      if (!el) return;
+      gsap.set(el, { transformOrigin: '50% 100%' });
+      gsap.to(el, {
+        scaleY: 1.045,
+        duration: 3.4 + i * 0.6,
+        repeat: -1,
+        yoyo: true,
+        ease: 'sine.inOut',
+      });
+    });
+    const pupils = ['pupil-left', 'right-eye-pupil']
+      .map((id) => get(id))
+      .filter(Boolean);
+    if (pupils.length) {
+      gsap.to(pupils, {
+        x: '+=3',
+        y: '+=2',
+        duration: 2.6,
+        repeat: -1,
+        yoyo: true,
+        ease: 'power1.inOut',
+      });
+    }
+  }
+
+  // Lars: breathes, glances, and blinks at natural intervals.
+  function rigLars(mount, get) {
+    const svg = mount.querySelector('svg');
+    const eyes = ['l-left', 'l-right'].map((id) => get(id)).filter(Boolean);
+    if (prefersReduced || !eyes.length) return;
+
+    gsap.set(eyes, { transformOrigin: '50% 50%' });
+    if (svg) {
+      gsap.to(svg, {
+        scale: 1.012,
+        transformOrigin: '50% 60%',
+        duration: 4.5,
+        repeat: -1,
+        yoyo: true,
+        ease: 'sine.inOut',
+      });
+    }
+    // slow glance
+    gsap.to(eyes, {
+      x: '-=4',
+      duration: 3.8,
+      repeat: -1,
+      yoyo: true,
+      ease: 'power1.inOut',
+    });
+    // blink loop — quick close/open with a natural random gap
+    const blink = () => {
+      gsap
+        .timeline({
+          onComplete: () => gsap.delayedCall(gsap.utils.random(2.5, 6), blink),
+        })
+        .to(eyes, { scaleY: 0.05, duration: 0.06, ease: 'power2.in' })
+        .to(eyes, { scaleY: 1, duration: 0.12, ease: 'power2.out' });
+    };
+    gsap.delayedCall(gsap.utils.random(1.5, 3.5), blink);
+  }
+
+  const rigs = { birds: rigBirds, skeleton: rigSkeleton, lars: rigLars };
+
+  // Affinity exports reuse ids (_clip1, Artboard…). Inlining several in one
+  // document collides those ids (clip-paths resolve to the wrong element and
+  // clip content away). Namespace every id + internal reference per mount.
+  function namespaceIds(svgText, prefix) {
+    return svgText
+      .replace(/id="([^"]+)"/g, `id="${prefix}$1"`)
+      .replace(/url\(#([^)]+)\)/g, `url(#${prefix}$1)`)
+      .replace(/((?:xlink:)?href)="#([^"]+)"/g, `$1="#${prefix}$2"`);
+  }
+
+  async function mountVectors() {
+    const mounts = gsap.utils.toArray('[data-svg]');
+    await Promise.all(
+      mounts.map(async (el) => {
+        try {
+          const res = await fetch(el.dataset.svg);
+          if (!res.ok) return;
+          const prefix = (el.dataset.rig || 'svg') + '-';
+          el.innerHTML = namespaceIds(await res.text(), prefix);
+          const svg = el.querySelector('svg');
+          if (svg) {
+            svg.removeAttribute('width');
+            svg.removeAttribute('height');
+            svg.setAttribute(
+              'preserveAspectRatio',
+              el.dataset.fit === 'meet' ? 'xMidYMid meet' : 'xMidYMid slice',
+            );
+          }
+          const rig = rigs[el.dataset.rig];
+          const get = (name) => el.querySelector('#' + prefix + name);
+          if (rig) rig(el, get);
+        } catch (e) {
+          /* file:// or missing asset — leave the mount empty */
+        }
+      }),
+    );
+    ScrollTrigger.refresh();
+  }
+  mountVectors();
 
   /* ------------------------------------------------------------------ */
   /* Generic scene line reveals + optional DrawSVG trace-on             */

@@ -47,12 +47,10 @@
         <p class="title__scroll" id="scrollHint">scroll ↓</p>
       </section>
 
-      <!-- 3. SCENE — flock of birds (rigged SVG: flapping wings) + quote -- -->
-      <section class="scene scene--birds" id="sceneBirds" aria-label="Birds" data-audio="./assets/audio/01-refuses.mp3">
+      <!-- 3. SCENE — hand-shadow dove (rigged SVG: flapping wings) + quote  -->
+      <section class="scene scene--birds" id="sceneBirds" aria-label="Bird" data-audio="./assets/audio/01-refuses.mp3">
         <div class="scene__stage">
-          <svg class="scene__svg scene__svg--birds" viewBox="0 0 1200 700" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
-            <g id="birdFlock"></g>
-          </svg>
+          <div class="scene__svg scene__svg--vector" data-svg="./assets/birds.svg" data-rig="birds" data-fit="slice" aria-hidden="true"></div>
           <p class="scene__line" data-scene-line>
             <span class="sv">Jag vill ha en konst som vägrar.</span>
             <span class="en">I want an art that refuses.</span>
@@ -79,11 +77,7 @@
       <!-- 6. SCENE — the skeleton shadow (push-in) + quote --------------- -->
       <section class="scene" id="sceneSkeleton" aria-label="Skeleton shadow" data-audio="./assets/audio/04-rot.mp3">
         <div class="scene__stage">
-          <svg class="scene__svg" viewBox="20 110 696 690" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
-            <g id="skeletonStage" data-anim="push-in">
-              <image href="./assets/refs/shadow-body.png" x="0" y="0" width="836" height="1024" />
-            </g>
-          </svg>
+          <div class="scene__svg scene__svg--vector" data-svg="./assets/skelett.svg" data-rig="skeleton" data-fit="meet" data-anim="push-in" aria-hidden="true"></div>
           <p class="scene__line scene__line--bottom" data-scene-line>
             <span class="sv">Marknaden är döden — den får konsten att ruttna.</span>
             <span class="en">The market is death — it makes art rot.</span>
@@ -141,7 +135,7 @@
       <!-- 11. MEMORIAL — Lars Norén -------------------------------------- -->
       <!-- SWAP POINT: drop a traced <svg> / <img> of Norén into .memorial__portrait. -->
       <section class="memorial" id="memorial" aria-label="Lars Norén">
-        <div class="memorial__portrait" id="norenPortrait" aria-hidden="true"></div>
+        <div class="memorial__portrait" id="norenPortrait" data-svg="./assets/lars.svg" data-rig="lars" data-fit="meet" aria-hidden="true"></div>
         <p class="memorial__kicker">TILL MINNE AV · IN MEMORY OF</p>
         <h2 class="memorial__name">Lars Norén</h2>
         <p class="memorial__dates">1944 – 2021</p>
