@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="sv">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>INNAN NATTEN — en film</title>
+    <meta
+      name="description"
+      content="Innan natten (Before the Night) — a chamber film. A tribute to Lars Norén and an art that refuses the market."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Space+Grotesk:wght@300;400;500&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body class="is-loading">
+    <div class="film-overlay" aria-hidden="true">
+      <canvas id="grain"></canvas>
+      <div class="vignette"></div>
+      <div class="bar bar--top"></div>
+      <div class="bar bar--bottom"></div>
+    </div>
+    <div class="perforations" aria-hidden="true"></div>
+
+    <!-- Sound toggle (dormant until you add files to assets/audio/) -->
+    <button class="sound-toggle" id="soundToggle" type="button" aria-pressed="false" hidden>
+      <span class="sound-toggle__dot"></span>
+      <span class="sound-toggle__label">sound</span>
+    </button>
+
+    <!-- 1. PRELOADER: projector start / academy countdown ---------------- -->
+    <div class="loader" id="loader" role="status" aria-label="Loading">
+      <div class="leader__gate">
+        <div class="leader__crosshair"></div>
+        <div class="leader__sweep"></div>
+        <div class="leader__count" id="count">5</div>
+        <div class="leader__meta">
+          <span>REEL 1</span>
+          <span>PICTURE START</span>
+        </div>
+      </div>
+      <div class="leader__flash" id="flash"></div>
+    </div>
+
+    <main id="film">
+      <!-- 2. TITLE — "XXX production presents / Before the Night" --------- -->
+      <section class="title" id="title" aria-label="Title">
+        <p class="title__kicker">XXX PRODUCTION PRESENTS</p>
+        <h1 class="title__main" id="titleMain">Innan natten</h1>
+        <p class="title__translation">“Before the Night”</p>
+        <p class="title__scroll" id="scrollHint">scroll ↓</p>
+      </section>
+
+      <!-- 3. SCENE — dove hands (zoom-out) + first quote ----------------- -->
+      <section class="scene" id="sceneHands" aria-label="Shadow doves" data-audio="./assets/audio/01-refuses.mp3">
+        <div class="scene__stage">
+          <svg class="scene__svg" viewBox="15 115 649 745" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+            <g id="handsStage" data-anim="zoom-out">
+              <image href="./assets/refs/shadow-hands.png" x="0" y="0" width="679" height="1024" />
+            </g>
+          </svg>
+          <p class="scene__line" data-scene-line>
+            <span class="sv">Jag vill ha en konst som vägrar.</span>
+            <span class="en">I want an art that refuses.</span>
+          </p>
+        </div>
+      </section>
+
+      <!-- 4. INTERTITLE -------------------------------------------------- -->
+      <section class="intertitle-scene" aria-label="Quote" data-audio="./assets/audio/02-publicity.mp3">
+        <p class="intertitle" data-intertitle>
+          <span class="sv">Konst som inte strävar efter publicitet.</span>
+          <span class="en">Art that does not strive for publicity.</span>
+        </p>
+      </section>
+
+      <!-- 5. INTERTITLE — the market ------------------------------------- -->
+      <section class="intertitle-scene" aria-label="Quote" data-audio="./assets/audio/03-poison.mp3">
+        <p class="intertitle" data-intertitle>
+          <span class="sv">Marknaden är det dödligaste av alla gifter.</span>
+          <span class="en">The market is the most lethal of all poisons.</span>
+        </p>
+      </section>
+
+      <!-- 6. SCENE — the skeleton shadow (push-in) + quote --------------- -->
+      <section class="scene" id="sceneSkeleton" aria-label="Skeleton shadow" data-audio="./assets/audio/04-rot.mp3">
+        <div class="scene__stage">
+          <svg class="scene__svg" viewBox="20 110 696 690" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+            <g id="skeletonStage" data-anim="push-in">
+              <image href="./assets/refs/shadow-body.png" x="0" y="0" width="836" height="1024" />
+            </g>
+          </svg>
+          <p class="scene__line scene__line--bottom" data-scene-line>
+            <span class="sv">Marknaden är döden — den får konsten att ruttna.</span>
+            <span class="en">The market is death — it makes art rot.</span>
+          </p>
+        </div>
+      </section>
+
+      <!-- 7. SCENE — the face in the foreground (push-in) ---------------- -->
+      <section class="scene" id="sceneFace" aria-label="A face">
+        <div class="scene__stage">
+          <svg class="scene__svg" viewBox="0 0 1024 680" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+            <g id="faceStage" data-anim="push-in">
+              <image href="./assets/refs/portrait.png" x="0" y="0" width="1024" height="680" preserveAspectRatio="xMidYMid slice" />
+            </g>
+          </svg>
+        </div>
+      </section>
+
+      <!-- 8. SCENE — those who will not look (zoom-out) ------------------ -->
+      <section class="scene" id="sceneFigures" aria-label="Three figures">
+        <div class="scene__stage">
+          <svg class="scene__svg" viewBox="0 0 1024 640" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+            <g id="figuresStage" data-anim="zoom-out">
+              <image href="./assets/refs/three-figures.png" x="0" y="0" width="1024" height="640" preserveAspectRatio="xMidYMid slice" />
+            </g>
+          </svg>
+        </div>
+      </section>
+
+      <!-- 9. INTERTITLE — decentralisation (AI voice) -------------------- -->
+      <section class="intertitle-scene" aria-label="Quote" data-audio="./assets/audio/05-decentralisation.mp3">
+        <p class="intertitle intertitle--long" data-intertitle>
+          <span class="en en--lead">
+            One of the wonderful things about the decentralisation of society
+            is that all the subcultures, with their own values —
+          </span>
+        </p>
+      </section>
+
+      <!-- 10. SCENE — figures walking into light (hope) ------------------ -->
+      <section class="scene" id="sceneHope" aria-label="Figures in light" data-audio="./assets/audio/06-hope.mp3">
+        <div class="scene__stage">
+          <svg class="scene__svg" viewBox="15 110 663 760" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+            <g id="hopeStage" data-anim="push-in">
+              <image href="./assets/refs/figures-in-light.png" x="0" y="0" width="693" height="1024" />
+            </g>
+          </svg>
+          <p class="scene__line" data-scene-line>
+            <span class="sv">Det är där hoppet ligger.</span>
+            <span class="en">That is where the hope lies.</span>
+          </p>
+        </div>
+      </section>
+
+      <!-- 11. MEMORIAL — Lars Norén -------------------------------------- -->
+      <!-- SWAP POINT: drop a traced <svg> / <img> of Norén into .memorial__portrait. -->
+      <section class="memorial" id="memorial" aria-label="Lars Norén">
+        <div class="memorial__portrait" id="norenPortrait" aria-hidden="true"></div>
+        <p class="memorial__kicker">TILL MINNE AV · IN MEMORY OF</p>
+        <h2 class="memorial__name">Lars Norén</h2>
+        <p class="memorial__dates">1944 – 2021</p>
+      </section>
+
+      <!-- 12. CREDITS + ATTRIBUTION -------------------------------------- -->
+      <section class="finale" id="finale" aria-label="Credits">
+        <div class="crawl" id="crawl">
+          <div class="crawl__inner" id="crawlInner">
+            <p class="crawl__role">A film by</p>
+            <p class="crawl__name">XXX PRODUCTION</p>
+            <p class="crawl__role">Words</p>
+            <p class="crawl__name">LARS NORÉN</p>
+            <p class="crawl__role">Built for</p>
+            <p class="crawl__name">WEB DEV CHALLENGE · GSAP</p>
+            <p class="crawl__role">Quotations from</p>
+            <p class="crawl__name">XXX · interview with YYY · ZZZ</p>
+          </div>
+        </div>
+
+        <div class="premiere" id="premiere">
+          <p class="premiere__label">Coming soon</p>
+          <h2 class="premiere__title">INNAN NATTEN</h2>
+          <div class="premiere__actions">
+            <a class="btn btn--primary" href="#watch">Watch the trailer</a>
+            <a class="btn btn--ghost" href="#title">Restart the reel</a>
+          </div>
+          <p class="premiere__fineprint">
+            A fictional film · quotations by Lars Norén · built with GSAP
+          </p>
+        </div>
+      </section>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/ScrollTrigger.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/SplitText.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/DrawSVGPlugin.min.js"></script>
+    <script src="./main.js"></script>
+  </body>
+</html>

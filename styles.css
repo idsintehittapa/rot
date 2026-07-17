@@ -1,0 +1,575 @@
+:root {
+  --black: #070707;
+  --bone: #e8e4da;
+  --bone-dim: #a7a297;
+  --accent: #b6412f;
+  --bar: clamp(28px, 7vh, 88px);
+  --serif: "Cormorant Garamond", Georgia, serif;
+  --sans: "Space Grotesk", system-ui, sans-serif;
+  --film: grayscale(1) contrast(1.18) brightness(0.9);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  background: var(--black);
+}
+
+body {
+  background: var(--black);
+  color: var(--bone);
+  font-family: var(--sans);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+/* lock scrolling while the reel loads */
+body.is-loading {
+  overflow: hidden;
+  height: 100vh;
+}
+
+section {
+  position: relative;
+  width: 100%;
+}
+
+/* ---------- Persistent film overlay ---------- */
+.film-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9000;
+  pointer-events: none;
+}
+
+#grain {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0.07;
+  mix-blend-mode: screen;
+}
+
+.vignette {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse at center,
+    transparent 50%,
+    rgba(0, 0, 0, 0.6) 100%
+  );
+}
+
+.bar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: var(--bar);
+  background: #000;
+}
+.bar--top {
+  top: 0;
+}
+.bar--bottom {
+  bottom: 0;
+}
+
+.perforations {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 14px;
+  height: 100%;
+  z-index: 9001;
+  pointer-events: none;
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent 0 14px,
+    rgba(232, 228, 218, 0.16) 14px 22px
+  );
+  opacity: 0.5;
+}
+
+/* ---------- 1. Loader / countdown ---------- */
+.loader {
+  position: fixed;
+  inset: 0;
+  z-index: 9500;
+  display: grid;
+  place-items: center;
+  background: #050505;
+}
+
+.leader__gate {
+  position: relative;
+  width: min(74vmin, 620px);
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  overflow: hidden;
+  background: radial-gradient(
+    circle at center,
+    #161616 0%,
+    #090909 70%,
+    #000 100%
+  );
+}
+
+.leader__crosshair {
+  position: absolute;
+  inset: 0;
+}
+.leader__crosshair::before,
+.leader__crosshair::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  background: rgba(232, 228, 218, 0.35);
+}
+.leader__crosshair::before {
+  width: 1px;
+  height: 200%;
+}
+.leader__crosshair::after {
+  height: 1px;
+  width: 200%;
+}
+
+.leader__sweep {
+  position: absolute;
+  inset: 0;
+  background: conic-gradient(
+    from 0deg,
+    rgba(232, 228, 218, 0.18) 0deg,
+    transparent 24deg 360deg
+  );
+  transform-origin: center;
+}
+
+.leader__count {
+  position: relative;
+  z-index: 3;
+  font-family: var(--serif);
+  font-weight: 500;
+  font-size: min(42vmin, 340px);
+  line-height: 1;
+  color: var(--bone);
+  text-shadow: 0 0 40px rgba(0, 0, 0, 0.6);
+}
+
+.leader__meta {
+  position: absolute;
+  z-index: 3;
+  bottom: 12%;
+  display: flex;
+  gap: 2rem;
+  font-size: 0.7rem;
+  letter-spacing: 0.4em;
+  color: var(--bone-dim);
+}
+
+.leader__flash {
+  position: absolute;
+  inset: 0;
+  background: #fff;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 9600;
+}
+
+/* ---------- 2. Title ---------- */
+.title {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  gap: 1.4rem;
+  padding: 10vh 6vw;
+}
+
+.title__kicker {
+  font-size: 0.72rem;
+  letter-spacing: 0.42em;
+  color: var(--bone-dim);
+  max-width: 40ch;
+  line-height: 1.8;
+}
+
+.title__main {
+  font-family: var(--serif);
+  font-weight: 300;
+  font-size: clamp(2.6rem, 11vw, 11rem);
+  line-height: 0.94;
+  letter-spacing: 0.01em;
+}
+
+.title__translation {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: clamp(1rem, 2.4vw, 1.7rem);
+  color: var(--bone-dim);
+}
+
+.title__scroll {
+  margin-top: 3rem;
+  font-size: 0.7rem;
+  letter-spacing: 0.5em;
+  color: var(--bone-dim);
+}
+
+/* ---------- Generic cinematic scene (tall = scroll runway) ---------- */
+.scene {
+  height: 240vh;
+}
+
+.scene__stage {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow: hidden;
+  background: #000;
+}
+
+.scene__svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  filter: var(--film);
+}
+
+.scene__svg image {
+  filter: contrast(1.05);
+}
+
+.scene__line {
+  position: absolute;
+  z-index: 4;
+  left: 0;
+  right: 0;
+  top: calc(var(--bar) + 6vh);
+  text-align: center;
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: clamp(1.3rem, 3.6vw, 2.8rem);
+  color: var(--bone);
+  padding: 0 6vw;
+  text-shadow: 0 2px 26px rgba(0, 0, 0, 0.85);
+}
+
+.scene__line--bottom {
+  top: auto;
+  bottom: calc(var(--bar) + 6vh);
+}
+
+/* ---------- Intertitles ---------- */
+.intertitle-scene {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  background: #000;
+}
+
+.intertitle--long {
+  max-width: 20ch;
+}
+
+.en--lead {
+  font-family: var(--serif);
+  font-style: italic;
+  font-weight: 300;
+  font-size: clamp(1.5rem, 4.4vw, 3.4rem);
+  line-height: 1.28;
+  letter-spacing: 0;
+  color: var(--bone);
+  margin-top: 0;
+}
+
+.intertitle {
+  font-family: var(--serif);
+  font-style: italic;
+  font-weight: 300;
+  font-size: clamp(1.8rem, 5.5vw, 4.6rem);
+  line-height: 1.2;
+  text-align: center;
+  padding: 0 8vw;
+  max-width: 22ch;
+}
+
+/* Swedish primary line + English subtitle */
+.sv {
+  display: block;
+}
+
+.en {
+  display: block;
+  font-family: var(--sans);
+  font-style: normal;
+  font-weight: 300;
+  font-size: clamp(0.7rem, 1.25vw, 0.98rem);
+  letter-spacing: 0.16em;
+  line-height: 1.6;
+  color: var(--bone-dim);
+  margin-top: 1.1em;
+}
+
+/* ---------- 5. Persona (SVG halves) ---------- */
+.persona {
+  height: 300vh;
+}
+
+.persona__stage {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow: hidden;
+  background: #000;
+}
+
+.persona__half {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  width: 50%;
+  filter: var(--film) brightness(0.7);
+  will-change: transform, filter;
+}
+.persona__half--left {
+  left: 0;
+}
+.persona__half--right {
+  right: 0;
+}
+
+.persona__seam {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 2px;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.9);
+  transform: translateX(-50%);
+  opacity: 0;
+}
+
+.persona__line {
+  position: absolute;
+  bottom: calc(var(--bar) + 6vh);
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: clamp(1.2rem, 3.4vw, 2.6rem);
+  color: var(--bone);
+  z-index: 5;
+  opacity: 0;
+  mix-blend-mode: difference;
+}
+
+/* ---------- Memorial (Lars Norén) ---------- */
+.memorial {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  text-align: center;
+  background: #000;
+  padding: 12vh 6vw;
+}
+
+/* Placeholder frame — swap for a traced portrait/SVG */
+.memorial__portrait {
+  width: min(42vmin, 300px);
+  aspect-ratio: 3 / 4;
+  margin-bottom: 2rem;
+  border: 1px solid rgba(232, 228, 218, 0.22);
+  background: radial-gradient(
+    ellipse at 50% 40%,
+    rgba(232, 228, 218, 0.08),
+    transparent 70%
+  );
+  filter: var(--film);
+  background-size: cover;
+  background-position: center;
+}
+
+.memorial__kicker {
+  font-size: 0.72rem;
+  letter-spacing: 0.5em;
+  color: var(--bone-dim);
+}
+
+.memorial__name {
+  font-family: var(--serif);
+  font-weight: 300;
+  font-size: clamp(2.4rem, 8vw, 6rem);
+  line-height: 1;
+}
+
+.memorial__dates {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: clamp(1rem, 2.2vw, 1.5rem);
+  color: var(--bone-dim);
+}
+
+/* ---------- Sound toggle ---------- */
+.sound-toggle {
+  position: fixed;
+  right: calc(14px + 1.2rem);
+  bottom: calc(var(--bar) + 1.2rem);
+  z-index: 9200;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.6rem 0.9rem;
+  background: rgba(7, 7, 7, 0.55);
+  border: 1px solid rgba(232, 228, 218, 0.3);
+  color: var(--bone);
+  font-family: var(--sans);
+  font-size: 0.62rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  cursor: pointer;
+  backdrop-filter: blur(4px);
+  transition:
+    border-color 0.3s ease,
+    background 0.3s ease;
+}
+.sound-toggle:hover {
+  border-color: var(--bone);
+}
+.sound-toggle__dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--bone-dim);
+  transition:
+    background 0.3s ease,
+    box-shadow 0.3s ease;
+}
+.sound-toggle[aria-pressed="true"] .sound-toggle__dot {
+  background: var(--accent);
+  box-shadow: 0 0 10px var(--accent);
+}
+
+/* ---------- 7. Finale ---------- */
+.finale {
+  background: #000;
+  position: relative;
+}
+
+.crawl {
+  height: 100vh;
+  overflow: hidden;
+  position: relative;
+}
+
+.crawl__inner {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  text-align: center;
+  padding: 0 6vw;
+}
+
+.crawl__role {
+  font-size: 0.72rem;
+  letter-spacing: 0.5em;
+  color: var(--bone-dim);
+  margin-top: 1.6rem;
+}
+.crawl__name {
+  font-family: var(--serif);
+  font-size: clamp(1.3rem, 3vw, 2.4rem);
+}
+
+.premiere {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 1.5rem;
+  padding: 12vh 6vw;
+}
+
+.premiere__label {
+  font-size: 0.72rem;
+  letter-spacing: 0.55em;
+  color: var(--accent);
+}
+
+.premiere__title {
+  font-family: var(--serif);
+  font-weight: 300;
+  font-size: clamp(2.2rem, 8vw, 6.5rem);
+  line-height: 0.95;
+}
+
+.premiere__actions {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: 1rem;
+}
+
+.btn {
+  text-decoration: none;
+  font-size: 0.78rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  padding: 1rem 2rem;
+  border: 1px solid var(--bone-dim);
+  color: var(--bone);
+  transition:
+    background 0.4s ease,
+    color 0.4s ease,
+    border-color 0.4s ease;
+}
+.btn--primary {
+  background: var(--bone);
+  color: var(--black);
+  border-color: var(--bone);
+}
+.btn--primary:hover {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--bone);
+}
+.btn--ghost:hover {
+  border-color: var(--bone);
+  background: rgba(232, 228, 218, 0.08);
+}
+
+.premiere__fineprint {
+  font-size: 0.68rem;
+  letter-spacing: 0.25em;
+  color: var(--bone-dim);
+  margin-top: 1.5rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .leader__sweep {
+    display: none;
+  }
+}
