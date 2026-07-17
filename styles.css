@@ -277,6 +277,18 @@ section {
   filter: contrast(1.05);
 }
 
+/* birds are already monochrome vectors — keep edges crisp */
+.scene__svg--birds {
+  filter: none;
+}
+.bird__wing,
+.bird__body {
+  fill: var(--bone);
+}
+.bird__wing {
+  will-change: transform;
+}
+
 .scene__line {
   position: absolute;
   z-index: 4;

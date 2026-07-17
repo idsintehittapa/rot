@@ -143,6 +143,73 @@
   }
 
   /* ------------------------------------------------------------------ */
+  /* 3. Bird flock — rigged SVG (body + two wings that flap)            */
+  /* Scroll scrubs each bird's flight arc; wings flap on their own      */
+  /* time-based loop, desynced per bird (no lifeless "twinning").       */
+  /* ------------------------------------------------------------------ */
+  const flock = document.getElementById('birdFlock');
+  if (flock) {
+    const SVGNS = 'http://www.w3.org/2000/svg';
+    const birdMarkup =
+      '<path class="bird__wing bird__wing--l" d="M50 30 C34 12 14 12 2 26 C20 24 36 28 50 33 Z"/>' +
+      '<path class="bird__wing bird__wing--r" d="M50 30 C66 12 86 12 98 26 C80 24 64 28 50 33 Z"/>' +
+      '<ellipse class="bird__body" cx="50" cy="31" rx="5.5" ry="3.4"/>';
+
+    const N = 8;
+    const birds = [];
+    for (let i = 0; i < N; i++) {
+      const g = document.createElementNS(SVGNS, 'g');
+      g.setAttribute('class', 'bird');
+      g.innerHTML = birdMarkup;
+      flock.appendChild(g);
+      birds.push(g);
+    }
+
+    const flyTl = gsap.timeline({
+      scrollTrigger: {
+        trigger: '#sceneBirds',
+        start: 'top bottom',
+        end: 'bottom top',
+        scrub: 0.8,
+      },
+    });
+
+    birds.forEach((g, i) => {
+      const scale = gsap.utils.random(0.5, 1.35);
+      const baseY = gsap.utils.random(120, 540);
+      const startX = gsap.utils.random(-420, -120);
+      const endX = 1360 + gsap.utils.random(0, 320);
+      gsap.set(g, { x: startX, y: baseY, scale, transformOrigin: '50% 50%' });
+
+      // flight path: cross the stage while drifting upward (toward the light)
+      flyTl.to(
+        g,
+        {
+          x: endX,
+          y: baseY - gsap.utils.random(50, 140),
+          ease: 'none',
+          duration: 1,
+        },
+        i * 0.06,
+      );
+
+      if (prefersReduced) return;
+
+      // wing flap — continuous, each bird its own cadence and phase
+      const wl = g.querySelector('.bird__wing--l');
+      const wr = g.querySelector('.bird__wing--r');
+      gsap.set(wl, { transformOrigin: 'right center' });
+      gsap.set(wr, { transformOrigin: 'left center' });
+      const beat = gsap.utils.random(0.28, 0.42);
+      gsap
+        .timeline({ repeat: -1, yoyo: true, defaults: { ease: 'sine.inOut' } })
+        .fromTo(wl, { rotation: 16 }, { rotation: -30, duration: beat }, 0)
+        .fromTo(wr, { rotation: -16 }, { rotation: 30, duration: beat }, 0)
+        .progress(Math.random());
+    });
+  }
+
+  /* ------------------------------------------------------------------ */
   /* Generic scene line reveals + optional DrawSVG trace-on             */
   /* ------------------------------------------------------------------ */
   gsap.utils.toArray('[data-scene-line], [data-intertitle]').forEach((line) => {

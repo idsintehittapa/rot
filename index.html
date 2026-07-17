@@ -47,13 +47,11 @@
         <p class="title__scroll" id="scrollHint">scroll ↓</p>
       </section>
 
-      <!-- 3. SCENE — dove hands (zoom-out) + first quote ----------------- -->
-      <section class="scene" id="sceneHands" aria-label="Shadow doves" data-audio="./assets/audio/01-refuses.mp3">
+      <!-- 3. SCENE — flock of birds (rigged SVG: flapping wings) + quote -- -->
+      <section class="scene scene--birds" id="sceneBirds" aria-label="Birds" data-audio="./assets/audio/01-refuses.mp3">
         <div class="scene__stage">
-          <svg class="scene__svg" viewBox="15 115 649 745" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
-            <g id="handsStage" data-anim="zoom-out">
-              <image href="./assets/refs/shadow-hands.png" x="0" y="0" width="679" height="1024" />
-            </g>
+          <svg class="scene__svg scene__svg--birds" viewBox="0 0 1200 700" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+            <g id="birdFlock"></g>
           </svg>
           <p class="scene__line" data-scene-line>
             <span class="sv">Jag vill ha en konst som vägrar.</span>
