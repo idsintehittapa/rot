@@ -1,4 +1,4 @@
-/* Det som blir kvar — GSAP-driven film landing page */
+/* Innan natten — GSAP-driven scroll piece */
 (() => {
   const prefersReduced = window.matchMedia(
     '(prefers-reduced-motion: reduce)',
@@ -39,95 +39,44 @@
   }
 
   /* ------------------------------------------------------------------ */
-  /* 1. Theater curtain — rises to reveal the stage                     */
+  /* 1. Title — spotlight blooms, letters resolve out of the grain      */
   /* ------------------------------------------------------------------ */
-  const curtain = document.getElementById('curtain');
-  const drapeL = document.querySelector('.curtain__drape--left');
-  const drapeR = document.querySelector('.curtain__drape--right');
-  const valance = document.querySelector('.curtain__valance');
-  const curtainLabel = document.getElementById('curtainLabel');
   const spot = document.getElementById('spot');
-
-  function revealReel() {
-    document.body.classList.remove('is-loading');
-    ScrollTrigger.refresh();
-  }
-
-  // The reveal: a breath of anticipation, drapes part on offset timing
-  // (no twinning), then the whole rig flies up with follow-through.
-  function buildCurtainRaise() {
-    const tl = gsap.timeline({ delay: 0.35 });
-
-    if (spot) gsap.set(spot, { autoAlpha: 0, scale: 1.35 });
-
-    tl
-      // anticipation — the drapes tense before they open
-      .to(
-        [drapeL, drapeR],
-        { scaleX: 1.03, duration: 0.55, ease: 'power1.inOut' },
-        0,
-      )
-      .to(curtainLabel, { autoAlpha: 0, y: -14, duration: 0.5, ease: 'power2.in' }, 0.15)
-      .addLabel('open', 0.55)
-      // part to the sides (left leads, right follows — arcs, not mirrors)
-      .to(drapeL, { xPercent: -16, duration: 0.7, ease: 'power2.in' }, 'open')
-      .to(drapeR, { xPercent: 16, duration: 0.7, ease: 'power2.in' }, 'open+=0.06')
-      // fly up; valance trails the drapes for follow-through
-      .to(
-        [drapeL, drapeR],
-        {
-          yPercent: -118,
-          duration: 1.25,
-          ease: 'power3.inOut',
-          onStart: revealReel,
-        },
-        'open+=0.28',
-      )
-      .to(
-        valance,
-        { yPercent: -108, duration: 1.15, ease: 'power3.inOut' },
-        'open+=0.42',
-      )
-      // spotlight blooms on the title as the stage is uncovered
-      .to(
-        spot,
-        { autoAlpha: 1, scale: 1, duration: 1.5, ease: 'power2.out' },
-        'open+=0.5',
-      )
-      .set(curtain, { display: 'none' });
-
-    return tl;
-  }
-
-  function runCurtain() {
-    if (prefersReduced || !curtain || !drapeL) {
-      if (curtain) curtain.style.display = 'none';
-      if (spot) gsap.set(spot, { autoAlpha: 1, scale: 1 });
-      revealReel();
-      return;
-    }
-    buildCurtainRaise();
-  }
-  runCurtain();
-
-  /* ------------------------------------------------------------------ */
-  /* 2. Title — letters resolve out of the grain                        */
-  /* ------------------------------------------------------------------ */
   const titleMain = document.getElementById('titleMain');
-  if (titleMain) {
-    let targets = [titleMain];
-    if (hasSplitText)
-      targets = new SplitText(titleMain, { type: 'chars' }).chars;
-    gsap.from(targets, {
-      opacity: 0,
-      yPercent: 120,
-      filter: 'blur(14px)',
-      rotateX: -70,
-      duration: 1.1,
-      ease: 'power4.out',
-      stagger: 0.05,
-      scrollTrigger: { trigger: '#title', start: 'top 75%', once: true },
-    });
+
+  function runIntro() {
+    if (spot) {
+      if (prefersReduced) {
+        gsap.set(spot, { autoAlpha: 1, scale: 1 });
+      } else {
+        gsap.fromTo(
+          spot,
+          { autoAlpha: 0, scale: 1.35 },
+          { autoAlpha: 1, scale: 1, duration: 1.6, ease: 'power2.out' },
+        );
+      }
+    }
+    if (titleMain) {
+      let targets = [titleMain];
+      if (hasSplitText)
+        targets = new SplitText(titleMain, { type: 'chars' }).chars;
+      gsap.from(targets, {
+        opacity: 0,
+        yPercent: 120,
+        filter: 'blur(14px)',
+        rotateX: -70,
+        duration: 1.1,
+        ease: 'power4.out',
+        stagger: 0.05,
+        delay: 0.2,
+      });
+    }
+  }
+  // wait for fonts so SplitText measures the real glyphs
+  if (document.fonts && document.fonts.ready) {
+    document.fonts.ready.then(runIntro);
+  } else {
+    runIntro();
   }
 
   const scrollHint = document.getElementById('scrollHint');
@@ -179,32 +128,27 @@
     }
   }
 
-  // Skeleton: ribs breathe; pupils drift; a slow, uneasy stare.
+  // Skeleton: faceless. The two rib groups are shadows of one body, so they
+  // breathe together on a single shared tween (same pattern, same phase).
   function rigSkeleton(mount, get) {
+    // hide the face — a body without a face
+    ['face', 'left-eye', 'right-eye', 'pupil-left', 'right-eye-pupil'].forEach(
+      (id) => {
+        const el = get(id);
+        if (el) el.style.display = 'none';
+      },
+    );
+
     if (prefersReduced) return;
-    ['ribs', 'chair-ribs'].forEach((id, i) => {
-      const el = get(id);
-      if (!el) return;
-      gsap.set(el, { transformOrigin: '50% 100%' });
-      gsap.to(el, {
-        scaleY: 1.045,
-        duration: 3.4 + i * 0.6,
+    const ribs = ['ribs', 'chair-ribs'].map((id) => get(id)).filter(Boolean);
+    if (ribs.length) {
+      gsap.set(ribs, { transformOrigin: '50% 100%' });
+      gsap.to(ribs, {
+        scaleY: 1.05,
+        duration: 3.6,
         repeat: -1,
         yoyo: true,
         ease: 'sine.inOut',
-      });
-    });
-    const pupils = ['pupil-left', 'right-eye-pupil']
-      .map((id) => get(id))
-      .filter(Boolean);
-    if (pupils.length) {
-      gsap.to(pupils, {
-        x: '+=3',
-        y: '+=2',
-        duration: 2.6,
-        repeat: -1,
-        yoyo: true,
-        ease: 'power1.inOut',
       });
     }
   }
@@ -273,7 +217,8 @@
             svg.removeAttribute('height');
             svg.setAttribute(
               'preserveAspectRatio',
-              el.dataset.fit === 'meet' ? 'xMidYMid meet' : 'xMidYMid slice',
+              el.dataset.par ||
+                (el.dataset.fit === 'meet' ? 'xMidYMid meet' : 'xMidYMid slice'),
             );
           }
           const rig = rigs[el.dataset.rig];
@@ -287,6 +232,38 @@
     ScrollTrigger.refresh();
   }
   mountVectors();
+
+  /* ------------------------------------------------------------------ */
+  /* Bird scene: the line turns from refusal to "not for publicity"     */
+  /* as you scroll through the scene.                                   */
+  /* ------------------------------------------------------------------ */
+  (() => {
+    const scene = document.getElementById('sceneBirds');
+    if (!scene) return;
+    const beats = scene.querySelectorAll('.scene__line--beat');
+    if (beats.length < 2) return;
+    const [b0, b1] = beats;
+    if (prefersReduced) {
+      gsap.set([b0, b1], { autoAlpha: 1 });
+      b1.classList.add('scene__line--beat-stacked');
+      return;
+    }
+    gsap.set(b0, { autoAlpha: 1 });
+    gsap.set(b1, { autoAlpha: 0, y: 24, filter: 'blur(10px)' });
+    gsap
+      .timeline({
+        scrollTrigger: {
+          trigger: scene,
+          start: 'top top',
+          end: 'bottom bottom',
+          scrub: 0.6,
+        },
+      })
+      .to({}, { duration: 0.42 }) // hold the first line
+      .to(b0, { autoAlpha: 0, y: -24, filter: 'blur(10px)', duration: 0.18 })
+      .to(b1, { autoAlpha: 1, y: 0, filter: 'blur(0px)', duration: 0.22 }, '<0.02')
+      .to({}, { duration: 0.42 }); // hold the second line
+  })();
 
   /* ------------------------------------------------------------------ */
   /* Generic scene line reveals + optional DrawSVG trace-on             */
@@ -477,20 +454,13 @@
   }
 
   /* ------------------------------------------------------------------ */
-  /* "Höj ridån igen" lowers the curtain, then raises it once more       */
+  /* "Från början" — smooth-scroll back to the title                    */
   /* ------------------------------------------------------------------ */
-  const replay = document.querySelector('a[href="#watch"]');
-  if (replay && curtain) {
-    replay.addEventListener('click', (e) => {
+  const restart = document.getElementById('restart');
+  if (restart) {
+    restart.addEventListener('click', (e) => {
       e.preventDefault();
-      if (prefersReduced) return;
       window.scrollTo({ top: 0, behavior: 'smooth' });
-      // reset the curtain to closed, then raise it again
-      curtain.style.display = 'grid';
-      gsap.set([drapeL, drapeR], { xPercent: 0, yPercent: 0, scaleX: 1 });
-      gsap.set(valance, { yPercent: 0 });
-      gsap.set(curtainLabel, { autoAlpha: 1, y: 0 });
-      buildCurtainRaise();
     });
   }
 

@@ -61,8 +61,8 @@ async function shotSvg(name, file) {
 }
 
 // Render the live page, optionally scrolled to a section.
-async function shotPage(name, { sel = null, frac = 0.4, wait = 4000 } = {}) {
-  const page = await ctx.newPage();
+async function shotPage(name, { sel = null, frac = 0.4, wait = 4000, context = ctx } = {}) {
+  const page = await context.newPage();
   await page.goto(`${base}/index.html`);
   await page.waitForTimeout(wait);
   if (sel) {
@@ -150,9 +150,23 @@ if (job === 'svg' || job === 'all') {
 }
 if (job === 'live' || job === 'all') {
   await shotPage('live-title', { wait: 4200 });
-  await shotPage('live-birds', { sel: '#sceneBirds', frac: 0.45, wait: 4200 });
+  await shotPage('live-birds-1', { sel: '#sceneBirds', frac: 0.08, wait: 4200 });
+  await shotPage('live-birds-2', { sel: '#sceneBirds', frac: 0.72 });
   await shotPage('live-skeleton', { sel: '#sceneSkeleton', frac: 0.2 });
-  await shotPage('live-memorial', { sel: '#memorial', frac: 0 });
+  await shotPage('live-lars', { sel: '#sceneLars', frac: 0.35 });
+}
+if (job === 'mobile' || job === 'all') {
+  const mobileCtx = await browser.newContext({
+    viewport: { width: 390, height: 844 },
+    deviceScaleFactor: 2,
+    isMobile: true,
+    reducedMotion: 'no-preference',
+  });
+  await shotPage('m-title', { wait: 4200, context: mobileCtx });
+  await shotPage('m-birds', { sel: '#sceneBirds', frac: 0.08, wait: 4200, context: mobileCtx });
+  await shotPage('m-skeleton', { sel: '#sceneSkeleton', frac: 0.2, context: mobileCtx });
+  await shotPage('m-lars', { sel: '#sceneLars', frac: 0.35, context: mobileCtx });
+  await mobileCtx.close();
 }
 
 await browser.close();

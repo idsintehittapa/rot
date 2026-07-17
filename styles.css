@@ -27,12 +27,6 @@ body {
   overflow-x: hidden;
 }
 
-/* lock scrolling while the reel loads */
-body.is-loading {
-  overflow: hidden;
-  height: 100vh;
-}
-
 section {
   position: relative;
   width: 100%;
@@ -79,111 +73,7 @@ section {
   bottom: 0;
 }
 
-/* ---------- 1. Theater curtain ---------- */
-.curtain {
-  position: fixed;
-  inset: 0;
-  z-index: 9500;
-  overflow: hidden;
-  background: #030303;
-  display: grid;
-  place-items: end center;
-}
-
-/* the two heavy drapes — grayscale velvet with vertical folds */
-.curtain__drape {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  width: 52%;
-  z-index: 2;
-  background:
-    linear-gradient(180deg, rgba(0, 0, 0, 0.55), transparent 22%),
-    repeating-linear-gradient(
-      90deg,
-      #050505 0px,
-      #191919 24px,
-      #0a0a0a 50px,
-      #1f1f1f 74px,
-      #050505 100px
-    );
-  box-shadow: inset 0 -60px 90px rgba(0, 0, 0, 0.85);
-  transform-origin: 50% 0;
-  will-change: transform;
-}
-.curtain__drape--left {
-  left: 0;
-}
-.curtain__drape--right {
-  right: 0;
-}
-/* scalloped hem */
-.curtain__drape::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: -18px;
-  height: 40px;
-  background: radial-gradient(
-      circle at 20px -8px,
-      #131313 18px,
-      transparent 19px
-    )
-    repeat-x;
-  background-size: 40px 40px;
-  filter: drop-shadow(0 6px 6px rgba(0, 0, 0, 0.6));
-}
-
-/* pelmet / valance across the top */
-.curtain__valance {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 15vh;
-  z-index: 4;
-  background:
-    linear-gradient(180deg, #1c1c1c, #060606),
-    repeating-linear-gradient(
-      90deg,
-      #060606 0px,
-      #1a1a1a 22px,
-      #070707 44px
-    );
-  box-shadow: 0 8px 26px rgba(0, 0, 0, 0.7);
-  transform-origin: 50% 0;
-  will-change: transform;
-}
-.curtain__valance::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: -22px;
-  height: 44px;
-  background: radial-gradient(
-      circle at 26px -12px,
-      #101010 22px,
-      transparent 23px
-    )
-    repeat-x;
-  background-size: 52px 44px;
-}
-
-.curtain__label {
-  position: relative;
-  z-index: 5;
-  margin-bottom: 8vh;
-  font-family: var(--serif);
-  font-style: italic;
-  font-size: clamp(0.9rem, 2vw, 1.35rem);
-  letter-spacing: 0.14em;
-  color: var(--bone-dim);
-  will-change: transform, opacity;
-}
-
-/* ---------- 2. Title ---------- */
+/* ---------- 1. Title ---------- */
 .title {
   position: relative;
   min-height: 100vh;
@@ -287,10 +177,6 @@ section {
   height: 100%;
   display: block;
 }
-#left-wing,
-#right-wing {
-  will-change: transform;
-}
 
 .scene__line {
   position: absolute;
@@ -310,6 +196,40 @@ section {
 .scene__line--bottom {
   top: auto;
   bottom: calc(var(--bar) + 6vh);
+}
+
+/* dual-beat scene (bird): both lines share the same spot, JS crossfades */
+.scene--dual {
+  height: 320vh;
+}
+.scene__line--beat {
+  top: auto;
+  bottom: calc(var(--bar) + 8vh);
+}
+/* reduced-motion fallback: stack the second line below the first */
+.scene__line--beat-stacked {
+  bottom: calc(var(--bar) + 2vh);
+  font-size: clamp(1.1rem, 3vw, 2.2rem);
+  color: var(--bone-dim);
+}
+
+/* ---------- Portrait scene (Lars / the hope) ---------- */
+.scene--portrait {
+  height: 220vh;
+}
+.portrait {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 12vh 6vw 22vh;
+}
+.portrait svg {
+  width: auto;
+  height: min(64vh, 560px);
+  max-width: 90vw;
+  display: block;
+  overflow: visible;
 }
 
 /* ---------- Intertitles ---------- */
@@ -415,52 +335,6 @@ section {
   z-index: 5;
   opacity: 0;
   mix-blend-mode: difference;
-}
-
-/* ---------- Memorial (Lars Norén) ---------- */
-.memorial {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 1rem;
-  text-align: center;
-  background: #000;
-  padding: 12vh 6vw;
-}
-
-/* Norén portrait — holds the inlined lars.svg (blinks + breathes) */
-.memorial__portrait {
-  width: min(52vmin, 380px);
-  aspect-ratio: 1479 / 1074;
-  margin-bottom: 1.5rem;
-}
-.memorial__portrait svg {
-  width: 100%;
-  height: 100%;
-  display: block;
-  overflow: visible;
-}
-
-.memorial__kicker {
-  font-size: 0.72rem;
-  letter-spacing: 0.5em;
-  color: var(--bone-dim);
-}
-
-.memorial__name {
-  font-family: var(--serif);
-  font-weight: 300;
-  font-size: clamp(2.4rem, 8vw, 6rem);
-  line-height: 1;
-}
-
-.memorial__dates {
-  font-family: var(--serif);
-  font-style: italic;
-  font-size: clamp(1rem, 2.2vw, 1.5rem);
-  color: var(--bone-dim);
 }
 
 /* ---------- Sound toggle ---------- */
@@ -607,7 +481,21 @@ section {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .curtain {
+  #grain {
     display: none;
+  }
+}
+
+/* ---------- Mobile ---------- */
+@media (max-width: 640px) {
+  :root {
+    --bar: clamp(18px, 4vh, 40px);
+  }
+  .scene__line,
+  .scene__line--beat {
+    font-size: clamp(1.15rem, 6vw, 1.8rem);
+  }
+  .portrait svg {
+    height: min(48vh, 420px);
   }
 }
