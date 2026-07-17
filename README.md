@@ -19,8 +19,10 @@ subtitles; the English-language quote is shown in English.
 
 ## The beats
 
-1. **Preloader — projector start.** Academy countdown (5·4·3·2·1), rotating
-   sweep, gate-weave jitter, burn-in flash. `Timeline`.
+1. **Curtain raise (theater open).** Grayscale velvet drapes with folds + a
+   pelmet; they tense (anticipation), part on offset timing, then fly up with
+   follow-through as a spotlight pools on the title. `Timeline`. The direction
+   is **theater** (Norén was a playwright), not cinema.
 2. **Title.** "XXX Production presents" / _Innan natten_. `SplitText`.
 3. **Shadow doves** (zoom-out) — "Jag vill ha en konst som vägrar."
 4. **Intertitle** — "Konst som inte strävar efter publicitet."

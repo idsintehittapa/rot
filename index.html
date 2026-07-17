@@ -23,31 +23,24 @@
       <div class="bar bar--top"></div>
       <div class="bar bar--bottom"></div>
     </div>
-    <div class="perforations" aria-hidden="true"></div>
-
     <!-- Sound toggle (dormant until you add files to assets/audio/) -->
     <button class="sound-toggle" id="soundToggle" type="button" aria-pressed="false" hidden>
       <span class="sound-toggle__dot"></span>
       <span class="sound-toggle__label">sound</span>
     </button>
 
-    <!-- 1. PRELOADER: projector start / academy countdown ---------------- -->
-    <div class="loader" id="loader" role="status" aria-label="Loading">
-      <div class="leader__gate">
-        <div class="leader__crosshair"></div>
-        <div class="leader__sweep"></div>
-        <div class="leader__count" id="count">5</div>
-        <div class="leader__meta">
-          <span>REEL 1</span>
-          <span>PICTURE START</span>
-        </div>
-      </div>
-      <div class="leader__flash" id="flash"></div>
+    <!-- 1. THEATER CURTAIN — rises to reveal the stage ------------------ -->
+    <div class="curtain" id="curtain" role="status" aria-label="Curtain">
+      <div class="curtain__drape curtain__drape--left"></div>
+      <div class="curtain__drape curtain__drape--right"></div>
+      <div class="curtain__valance"></div>
+      <p class="curtain__label" id="curtainLabel">en föreställning i en akt</p>
     </div>
 
     <main id="film">
       <!-- 2. TITLE — "XXX production presents / Before the Night" --------- -->
       <section class="title" id="title" aria-label="Title">
+        <div class="title__spot" id="spot" aria-hidden="true"></div>
         <p class="title__kicker">XXX PRODUCTION PRESENTS</p>
         <h1 class="title__main" id="titleMain">Innan natten</h1>
         <p class="title__translation">“Before the Night”</p>
@@ -172,14 +165,14 @@
         </div>
 
         <div class="premiere" id="premiere">
-          <p class="premiere__label">Coming soon</p>
+          <p class="premiere__label">Premiär</p>
           <h2 class="premiere__title">INNAN NATTEN</h2>
           <div class="premiere__actions">
-            <a class="btn btn--primary" href="#watch">Watch the trailer</a>
-            <a class="btn btn--ghost" href="#title">Restart the reel</a>
+            <a class="btn btn--primary" href="#watch">Höj ridån igen</a>
+            <a class="btn btn--ghost" href="#title">Tillbaka till scenen</a>
           </div>
           <p class="premiere__fineprint">
-            A fictional film · quotations by Lars Norén · built with GSAP
+            A fictional play · quotations by Lars Norén · built with GSAP
           </p>
         </div>
       </section>

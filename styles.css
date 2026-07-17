@@ -79,113 +79,113 @@ section {
   bottom: 0;
 }
 
-.perforations {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 14px;
-  height: 100%;
-  z-index: 9001;
-  pointer-events: none;
-  background-image: repeating-linear-gradient(
-    to bottom,
-    transparent 0 14px,
-    rgba(232, 228, 218, 0.16) 14px 22px
-  );
-  opacity: 0.5;
-}
-
-/* ---------- 1. Loader / countdown ---------- */
-.loader {
+/* ---------- 1. Theater curtain ---------- */
+.curtain {
   position: fixed;
   inset: 0;
   z-index: 9500;
-  display: grid;
-  place-items: center;
-  background: #050505;
-}
-
-.leader__gate {
-  position: relative;
-  width: min(74vmin, 620px);
-  aspect-ratio: 1;
-  display: grid;
-  place-items: center;
-  border-radius: 50%;
   overflow: hidden;
-  background: radial-gradient(
-    circle at center,
-    #161616 0%,
-    #090909 70%,
-    #000 100%
-  );
+  background: #030303;
+  display: grid;
+  place-items: end center;
 }
 
-.leader__crosshair {
+/* the two heavy drapes — grayscale velvet with vertical folds */
+.curtain__drape {
   position: absolute;
-  inset: 0;
+  top: 0;
+  bottom: 0;
+  width: 52%;
+  z-index: 2;
+  background:
+    linear-gradient(180deg, rgba(0, 0, 0, 0.55), transparent 22%),
+    repeating-linear-gradient(
+      90deg,
+      #050505 0px,
+      #191919 24px,
+      #0a0a0a 50px,
+      #1f1f1f 74px,
+      #050505 100px
+    );
+  box-shadow: inset 0 -60px 90px rgba(0, 0, 0, 0.85);
+  transform-origin: 50% 0;
+  will-change: transform;
 }
-.leader__crosshair::before,
-.leader__crosshair::after {
+.curtain__drape--left {
+  left: 0;
+}
+.curtain__drape--right {
+  right: 0;
+}
+/* scalloped hem */
+.curtain__drape::after {
   content: "";
   position: absolute;
-  inset: 0;
-  margin: auto;
-  background: rgba(232, 228, 218, 0.35);
-}
-.leader__crosshair::before {
-  width: 1px;
-  height: 200%;
-}
-.leader__crosshair::after {
-  height: 1px;
-  width: 200%;
+  left: 0;
+  right: 0;
+  bottom: -18px;
+  height: 40px;
+  background: radial-gradient(
+      circle at 20px -8px,
+      #131313 18px,
+      transparent 19px
+    )
+    repeat-x;
+  background-size: 40px 40px;
+  filter: drop-shadow(0 6px 6px rgba(0, 0, 0, 0.6));
 }
 
-.leader__sweep {
+/* pelmet / valance across the top */
+.curtain__valance {
   position: absolute;
-  inset: 0;
-  background: conic-gradient(
-    from 0deg,
-    rgba(232, 228, 218, 0.18) 0deg,
-    transparent 24deg 360deg
-  );
-  transform-origin: center;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 15vh;
+  z-index: 4;
+  background:
+    linear-gradient(180deg, #1c1c1c, #060606),
+    repeating-linear-gradient(
+      90deg,
+      #060606 0px,
+      #1a1a1a 22px,
+      #070707 44px
+    );
+  box-shadow: 0 8px 26px rgba(0, 0, 0, 0.7);
+  transform-origin: 50% 0;
+  will-change: transform;
+}
+.curtain__valance::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -22px;
+  height: 44px;
+  background: radial-gradient(
+      circle at 26px -12px,
+      #101010 22px,
+      transparent 23px
+    )
+    repeat-x;
+  background-size: 52px 44px;
 }
 
-.leader__count {
+.curtain__label {
   position: relative;
-  z-index: 3;
+  z-index: 5;
+  margin-bottom: 8vh;
   font-family: var(--serif);
-  font-weight: 500;
-  font-size: min(42vmin, 340px);
-  line-height: 1;
-  color: var(--bone);
-  text-shadow: 0 0 40px rgba(0, 0, 0, 0.6);
-}
-
-.leader__meta {
-  position: absolute;
-  z-index: 3;
-  bottom: 12%;
-  display: flex;
-  gap: 2rem;
-  font-size: 0.7rem;
-  letter-spacing: 0.4em;
+  font-style: italic;
+  font-size: clamp(0.9rem, 2vw, 1.35rem);
+  letter-spacing: 0.14em;
   color: var(--bone-dim);
-}
-
-.leader__flash {
-  position: absolute;
-  inset: 0;
-  background: #fff;
-  opacity: 0;
-  pointer-events: none;
-  z-index: 9600;
+  will-change: transform, opacity;
 }
 
 /* ---------- 2. Title ---------- */
 .title {
+  position: relative;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -194,6 +194,32 @@ section {
   text-align: center;
   gap: 1.4rem;
   padding: 10vh 6vw;
+  overflow: hidden;
+}
+
+/* spotlight pooled on the title, plus a faint stage floor */
+.title__spot {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      60% 46% at 50% 42%,
+      rgba(232, 228, 218, 0.16),
+      rgba(232, 228, 218, 0.05) 45%,
+      transparent 72%
+    ),
+    linear-gradient(
+      180deg,
+      transparent 62%,
+      rgba(232, 228, 218, 0.05) 82%,
+      rgba(232, 228, 218, 0.1) 100%
+    );
+}
+.title > *:not(.title__spot) {
+  position: relative;
+  z-index: 1;
 }
 
 .title__kicker {
@@ -569,7 +595,7 @@ section {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .leader__sweep {
+  .curtain {
     display: none;
   }
 }

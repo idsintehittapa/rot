@@ -39,77 +39,76 @@
   }
 
   /* ------------------------------------------------------------------ */
-  /* 1. Preloader — projector countdown, then reveal the reel           */
+  /* 1. Theater curtain — rises to reveal the stage                     */
   /* ------------------------------------------------------------------ */
-  const countEl = document.getElementById('count');
-  const sweep = document.querySelector('.leader__sweep');
-  const gate = document.querySelector('.leader__gate');
-  const flash = document.getElementById('flash');
-  const loader = document.getElementById('loader');
-
-  function buildCountdown() {
-    const numbers = ['5', '4', '3', '2', '1'];
-    const tl = gsap.timeline();
-    numbers.forEach((n, i) => {
-      tl.set(countEl, { textContent: n }, i)
-        .fromTo(
-          countEl,
-          { scale: 1.35, opacity: 0 },
-          { scale: 1, opacity: 1, duration: 0.22, ease: 'power2.out' },
-          i,
-        )
-        .to(
-          gate,
-          {
-            x: () => gsap.utils.random(-4, 4),
-            y: () => gsap.utils.random(-4, 4),
-            duration: 0.08,
-            repeat: 6,
-            yoyo: true,
-          },
-          i,
-        )
-        .to(countEl, { opacity: 0.15, duration: 0.6 }, i + 0.35);
-    });
-    if (sweep && !prefersReduced) {
-      tl.to(
-        sweep,
-        {
-          rotation: 360 * numbers.length,
-          duration: numbers.length,
-          ease: 'none',
-        },
-        0,
-      );
-    }
-    tl.set(gate, { x: 0, y: 0 })
-      .to(flash, { opacity: 1, duration: 0.08 }, '>')
-      .to(flash, { opacity: 0, duration: 0.5, ease: 'power2.out' });
-    return tl;
-  }
+  const curtain = document.getElementById('curtain');
+  const drapeL = document.querySelector('.curtain__drape--left');
+  const drapeR = document.querySelector('.curtain__drape--right');
+  const valance = document.querySelector('.curtain__valance');
+  const curtainLabel = document.getElementById('curtainLabel');
+  const spot = document.getElementById('spot');
 
   function revealReel() {
     document.body.classList.remove('is-loading');
     ScrollTrigger.refresh();
   }
 
-  function runLoader() {
-    if (prefersReduced || !countEl || !loader) {
-      if (loader) loader.style.display = 'none';
+  // The reveal: a breath of anticipation, drapes part on offset timing
+  // (no twinning), then the whole rig flies up with follow-through.
+  function buildCurtainRaise() {
+    const tl = gsap.timeline({ delay: 0.35 });
+
+    if (spot) gsap.set(spot, { autoAlpha: 0, scale: 1.35 });
+
+    tl
+      // anticipation — the drapes tense before they open
+      .to(
+        [drapeL, drapeR],
+        { scaleX: 1.03, duration: 0.55, ease: 'power1.inOut' },
+        0,
+      )
+      .to(curtainLabel, { autoAlpha: 0, y: -14, duration: 0.5, ease: 'power2.in' }, 0.15)
+      .addLabel('open', 0.55)
+      // part to the sides (left leads, right follows — arcs, not mirrors)
+      .to(drapeL, { xPercent: -16, duration: 0.7, ease: 'power2.in' }, 'open')
+      .to(drapeR, { xPercent: 16, duration: 0.7, ease: 'power2.in' }, 'open+=0.06')
+      // fly up; valance trails the drapes for follow-through
+      .to(
+        [drapeL, drapeR],
+        {
+          yPercent: -118,
+          duration: 1.25,
+          ease: 'power3.inOut',
+          onStart: revealReel,
+        },
+        'open+=0.28',
+      )
+      .to(
+        valance,
+        { yPercent: -108, duration: 1.15, ease: 'power3.inOut' },
+        'open+=0.42',
+      )
+      // spotlight blooms on the title as the stage is uncovered
+      .to(
+        spot,
+        { autoAlpha: 1, scale: 1, duration: 1.5, ease: 'power2.out' },
+        'open+=0.5',
+      )
+      .set(curtain, { display: 'none' });
+
+    return tl;
+  }
+
+  function runCurtain() {
+    if (prefersReduced || !curtain || !drapeL) {
+      if (curtain) curtain.style.display = 'none';
+      if (spot) gsap.set(spot, { autoAlpha: 1, scale: 1 });
       revealReel();
       return;
     }
-    const tl = buildCountdown();
-    tl.to(loader, {
-      autoAlpha: 0,
-      duration: 0.6,
-      onStart: revealReel,
-      onComplete: () => {
-        loader.style.display = 'none';
-      },
-    });
+    buildCurtainRaise();
   }
-  runLoader();
+  runCurtain();
 
   /* ------------------------------------------------------------------ */
   /* 2. Title — letters resolve out of the grain                        */
@@ -332,23 +331,20 @@
   }
 
   /* ------------------------------------------------------------------ */
-  /* "Watch the trailer" replays the projector countdown as a teaser    */
+  /* "Höj ridån igen" lowers the curtain, then raises it once more       */
   /* ------------------------------------------------------------------ */
-  const trailer = document.querySelector('a[href="#watch"]');
-  if (trailer && loader) {
-    trailer.addEventListener('click', (e) => {
+  const replay = document.querySelector('a[href="#watch"]');
+  if (replay && curtain) {
+    replay.addEventListener('click', (e) => {
       e.preventDefault();
       if (prefersReduced) return;
-      loader.style.display = 'grid';
-      gsap.set(loader, { autoAlpha: 1 });
-      const tl = buildCountdown();
-      tl.to(loader, {
-        autoAlpha: 0,
-        duration: 0.6,
-        onComplete: () => {
-          loader.style.display = 'none';
-        },
-      });
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      // reset the curtain to closed, then raise it again
+      curtain.style.display = 'grid';
+      gsap.set([drapeL, drapeR], { xPercent: 0, yPercent: 0, scaleX: 1 });
+      gsap.set(valance, { yPercent: 0 });
+      gsap.set(curtainLabel, { autoAlpha: 1, y: 0 });
+      buildCurtainRaise();
     });
   }
 
