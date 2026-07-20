@@ -3,21 +3,56 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>INNAN NATTEN</title>
+    <title>ROT</title>
     <meta
       name="description"
-      content="Innan natten (Before the Night) — a scroll-driven tribute to Lars Norén and an art that refuses the market."
+      content="Rot — a scroll-driven tribute to Lars Norén and an art that refuses the market."
     />
+    <link rel="icon" href="./assets/favicon.svg" type="image/svg+xml" />
+    <meta name="theme-color" content="#0b0b0c" />
+
+    <!-- Social / Open Graph. Set og:url + og:image to your absolute deployed
+         URL once you have a domain (some scrapers require absolute paths). -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Rot" />
+    <meta
+      property="og:description"
+      content="A scroll-driven, GSAP-animated tribute to Lars Norén and an art that refuses the market."
+    />
+    <meta property="og:image" content="./assets/og.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Rot" />
+    <meta
+      name="twitter:description"
+      content="A scroll-driven, GSAP-animated tribute to Lars Norén and an art that refuses the market."
+    />
+    <meta name="twitter:image" content="./assets/og.png" />
+
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <!-- load fonts without blocking render; the curtain covers the title long
+         enough that the swap is never visible -->
     <link
+      rel="preload"
+      as="style"
       href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Space+Grotesk:wght@300;400;500&display=swap"
-      rel="stylesheet"
+      onload="this.onload=null;this.rel='stylesheet'"
     />
+    <noscript>
+      <link
+        rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Space+Grotesk:wght@300;400;500&display=swap"
+      />
+    </noscript>
     <link rel="stylesheet" href="./styles.css" />
   </head>
-  <body>
-    <div class="film-overlay" aria-hidden="true">
+  <body class="curtain-up">
+    <!-- Curtain loader — a full-screen red "light curtain" (shimmering vertical
+         bands) that rises like a theater curtain to reveal the title. Beams are
+         built in JS. The film grain/frame stays off until it lifts. -->
+    <div class="curtain" id="curtain" aria-hidden="true"></div>
+
+    <div class="film-overlay" id="filmOverlay" aria-hidden="true">
       <canvas id="grain"></canvas>
       <div class="vignette"></div>
       <div class="bar bar--top"></div>
@@ -30,12 +65,24 @@
     </button>
 
     <main id="film">
-      <!-- 1. TITLE — letters resolve out of the grain -------------------- -->
-      <section class="title" id="title" aria-label="Title">
-        <div class="title__spot" id="spot" aria-hidden="true"></div>
-        <p class="title__kicker">XXX PRODUCTION PRESENTS</p>
-        <h1 class="title__main" id="titleMain">Innan natten</h1>
-        <p class="title__translation">“Before the Night”</p>
+      <!-- The bird scene scrolls up and covers the pinned title; both then
+           scroll away together. Only this first pair "stacks" — the rest of
+           the sections follow in normal flow. -->
+      <div class="stack">
+        <!-- 1. TITLE — letters resolve out of the grain -------------------- -->
+        <section class="title" id="title" aria-label="Title">
+        <div class="title__world" id="titleWorld">
+          <div class="title__moon" data-depth="-420" aria-hidden="true"></div>
+          <div class="title__beams" id="beams" data-depth="-260" aria-hidden="true"></div>
+          <div class="title__spot" id="spot" data-depth="-140" aria-hidden="true"></div>
+          <div class="title__layer" data-depth="-20">
+            <p class="title__kicker"JO PRODUCTION PRESENTS</p>
+          </div>
+          <div class="title__layer title__layer--main" data-depth="40">
+            <h1 class="title__main" id="titleMain">ROT</h1>
+          </div>
+          <div class="title__dust" id="dust" data-depth="170" aria-hidden="true"></div>
+        </div>
         <p class="title__scroll" id="scrollHint">scroll ↓</p>
       </section>
 
@@ -44,22 +91,35 @@
         <div class="scene__stage">
           <div class="scene__svg scene__svg--vector" data-svg="./assets/birds.svg" data-rig="birds" data-fit="slice" data-par="xMinYMid slice" aria-hidden="true"></div>
           <p class="scene__line scene__line--beat" data-beat="0">
-            <span class="sv">Jag vill ha en konst som vägrar.</span>
-            <span class="en">I want an art that refuses.</span>
+            <span class="sv">I want art which refuses ...</span>
           </p>
           <p class="scene__line scene__line--beat" data-beat="1">
-            <span class="sv">En konst som inte strävar efter publicitet.</span>
-            <span class="en">An art that does not strive for publicity.</span>
+            <span class="sv">Art which does not strive for publicity.</span>
+          </p>
+        </div>
+      </section>
+      </div>
+      <!-- /.stack -->
+
+      <!-- 3. SCENE — the shielded face (scroll-scrubbed reveal) ---------- -->
+      <section class="scene" id="sceneSun" aria-label="A figure shielding her face from the glare, then lowering her hand" data-audio="./assets/audio/02-refuses.mp3">
+        <div class="scene__stage">
+          <div class="scene__svg scene__svg--vector" data-svg="./assets/sun.svg" data-rig="sun" data-fit="meet" aria-hidden="true"></div>
+          <p class="scene__line scene__line--bottom" data-scene-line>
+            <span class="sv">Don’t try to be trendy or ‘new’.</span>
+            <span class="sv">Don't strive for the market.</span>
           </p>
         </div>
       </section>
 
-      <!-- 3. INTERTITLE — the market ------------------------------------- -->
-      <section class="intertitle-scene" aria-label="Quote" data-audio="./assets/audio/03-poison.mp3">
-        <p class="intertitle" data-intertitle>
-          <span class="sv">Marknaden är det dödligaste av alla gifter.</span>
-          <span class="en">The market is the most lethal of all poisons.</span>
-        </p>
+      <!-- 4. SCENE — the market devours (scroll-scrubbed bite) ----------- -->
+      <section class="scene" id="sceneEating" aria-label="A giant mouth devouring a person" data-audio="./assets/audio/03-poison.mp3">
+        <div class="scene__stage">
+          <div class="scene__svg scene__svg--vector" data-svg="./assets/eating.svg" data-rig="eating" data-fit="meet" aria-hidden="true"></div>
+          <p class="scene__line scene__line--bottom" data-scene-line>
+            <span class="sv">The market is the most lethal of all poisons.</span>
+          </p>
+        </div>
       </section>
 
       <!-- 6. SCENE — the skeleton shadow (push-in) + quote --------------- -->
@@ -67,22 +127,23 @@
         <div class="scene__stage">
           <div class="scene__svg scene__svg--vector" data-svg="./assets/skelett.svg" data-rig="skeleton" data-fit="meet" data-anim="push-in" aria-hidden="true"></div>
           <p class="scene__line scene__line--bottom" data-scene-line>
-            <span class="sv">Marknaden är döden — den får konsten att ruttna.</span>
-            <span class="en">The market is death — it makes art rot.</span>
-          </p>
+            <span class="sv">The market is death. It makes art rot away.</span>
+           </p>
         </div>
       </section>
 
-      <!-- 5. [ SCENE — the eating face / market — you will add head.svg ] -->
-
-      <!-- 6. INTERTITLE — decentralisation (AI voice) -------------------- -->
-      <section class="intertitle-scene" aria-label="Quote" data-audio="./assets/audio/05-decentralisation.mp3">
-        <p class="intertitle intertitle--long" data-intertitle>
-          <span class="en en--lead">
-            One of the wonderful things about the decentralisation of society
-            is that all the subcultures, with their own values —
-          </span>
-        </p>
+      <!-- 6. INTERTITLE — decentralisation: one cluster of light disperses
+           into many small independent points, each on its own rhythm ------ -->
+      <section class="intertitle-scene" id="sceneDecen" aria-label="Quote" data-audio="./assets/audio/05-decentralisation.mp3">
+        <div class="intertitle-stage">
+          <div class="constellation" id="constellation" aria-hidden="true"></div>
+          <p class="intertitle intertitle--long" data-intertitle>
+            <span class="sv en--lead">
+              One of the wonderful things about the decentralisation of society
+              is all the subcultures, with their own values.
+            </span>
+          </p>
+        </div>
       </section>
 
       <!-- 7. SCENE — Lars Norén; the hope ------------------------------- -->
@@ -90,44 +151,36 @@
         <div class="scene__stage">
           <div class="portrait" id="norenPortrait" data-svg="./assets/lars.svg" data-rig="lars" data-fit="meet" aria-hidden="true"></div>
           <p class="scene__line scene__line--bottom" data-scene-line>
-            <span class="sv">Det är där hoppet ligger.</span>
-            <span class="en">That is where the hope lies.</span>
+            <span class="sv">That is where the hope lies.</span>
           </p>
         </div>
       </section>
 
-      <!-- 8. CREDITS + ATTRIBUTION -------------------------------------- -->
+      <!-- 8. CREDITS + END STAGE ----------------------------------------- -->
+      <!-- The credits crawl up and off, then a follow-spot reveals ROT on the
+           same dark stage — no extra section, so no extra scrolling. -->
       <section class="finale" id="finale" aria-label="Credits">
         <div class="crawl" id="crawl">
           <div class="crawl__inner" id="crawlInner">
             <p class="crawl__role">A film by</p>
-            <p class="crawl__name">XXX PRODUCTION</p>
+            <p class="crawl__name"><a class="link"  href="https://johannablom.com">JO PRODUCTION</p></a>
             <p class="crawl__role">Words</p>
             <p class="crawl__name">LARS NORÉN</p>
             <p class="crawl__role">Built for</p>
-            <p class="crawl__name">WEB DEV CHALLENGE · GSAP</p>
+            <p class="crawl__name"><a class="link" href="https://codetv.dev/series/web-dev-challenge/s3/e5-best-landing-page-gsap" target="_blank" rel="noopener noreferrer">WEB DEV CHALLENGE</a></p>
             <p class="crawl__role">Quotations from</p>
-            <p class="crawl__name">XXX · interview with YYY · ZZZ</p>
+            <p class="crawl__name"><a class="link" href="https://www.youtube.com/watch?v=EVmRsLBdZV8" target="_blank" rel="noopener noreferrer">Lars Norén Interview: Advice to the Young</a></p>
           </div>
-        </div>
-
-        <div class="premiere" id="premiere">
-          <p class="premiere__label">Premiär</p>
-          <h2 class="premiere__title">INNAN NATTEN</h2>
-          <div class="premiere__actions">
-            <a class="btn btn--primary" href="#title" id="restart">Från början</a>
+          <div class="endcard__hidden" id="endHidden">
+            <h2 class="endcard__title">ROT</h2>
           </div>
-          <p class="premiere__fineprint">
-            A fictional play · quotations by Lars Norén · built with GSAP
-          </p>
+          <div class="endcard__spot" id="endSpot" aria-hidden="true"></div>
         </div>
       </section>
     </main>
 
-    <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/ScrollTrigger.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/SplitText.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/DrawSVGPlugin.min.js"></script>
-    <script src="./main.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/ScrollTrigger.min.js"></script>
+    <script defer src="./main.js"></script>
   </body>
 </html>

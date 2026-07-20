@@ -73,9 +73,85 @@ section {
   bottom: 0;
 }
 
+/* ---------- Curtain loader (red "light curtain" that rises) ---------- */
+/* While the curtain is up the page cannot scroll. */
+body.curtain-up {
+  overflow: hidden;
+  height: 100vh;
+}
+
+/* Above the film overlay, so no grain lands on the curtain — the theater
+   hasn't started yet. Full-screen red velvet with vertical fold shimmer. */
+.curtain {
+  position: fixed;
+  /* slightly overscan the sides so the sway/skew during the lift can never
+     expose a sliver of stage at a bottom corner */
+  inset: 0 -4vw;
+  z-index: 9500;
+  overflow: hidden;
+  pointer-events: none;
+  transform-origin: 50% 0;
+  will-change: transform;
+  /* fully opaque velvet with baked-in vertical pleats. No animated light
+     beams and no blend modes, so there is nothing that can flicker through
+     onto the title behind — the drape simply lifts to reveal it. */
+  background-color: #4a0d0d;
+  background-image:
+    repeating-linear-gradient(
+      90deg,
+      rgba(0, 0, 0, 0.45) 0,
+      rgba(0, 0, 0, 0) 1.6%,
+      rgba(255, 170, 140, 0.11) 3%,
+      rgba(0, 0, 0, 0) 4.4%,
+      rgba(0, 0, 0, 0.45) 6%
+    ),
+    linear-gradient(
+      90deg,
+      rgba(0, 0, 0, 0.55) 0,
+      transparent 9%,
+      transparent 91%,
+      rgba(0, 0, 0, 0.55) 100%
+    ),
+    linear-gradient(180deg, #5c1111 0%, #3d0808 58%, #220404 100%);
+  box-shadow: inset 0 -60px 90px -30px rgba(0, 0, 0, 0.75);
+  /* a gentle wave along the bottom so the hem reads as hanging fabric rather
+     than a ruler-straight edge */
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' preserveAspectRatio='none'%3E%3Cpath d='M0 0 H100 V95 Q93.75 93.2 87.5 95 T75 95 T62.5 95 T50 95 T37.5 95 T25 95 T12.5 95 T0 95 Z' fill='%23fff'/%3E%3C/svg%3E");
+  -webkit-mask-size: 100% 100%;
+  -webkit-mask-repeat: no-repeat;
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' preserveAspectRatio='none'%3E%3Cpath d='M0 0 H100 V95 Q93.75 93.2 87.5 95 T75 95 T62.5 95 T50 95 T37.5 95 T25 95 T12.5 95 T0 95 Z' fill='%23fff'/%3E%3C/svg%3E");
+  mask-size: 100% 100%;
+  mask-repeat: no-repeat;
+}
+
+/* weighted hem — the heavy bottom edge of the drape */
+.curtain::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 6vh;
+  background: linear-gradient(180deg, transparent, rgba(0, 0, 0, 0.6));
+  pointer-events: none;
+}
+
+/* film grain / frame stays hidden until the curtain rises */
+.film-overlay {
+  opacity: 0;
+}
+
 /* ---------- 1. Title ---------- */
-.title {
+/* the title is pinned while the bird scene scrolls up and covers it; both then
+   scroll away together (stickiness is bounded by the .stack wrapper) */
+.stack {
   position: relative;
+}
+.title {
+  position: sticky;
+  top: 0;
+  z-index: 0;
+  background: #000;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -85,13 +161,59 @@ section {
   gap: 1.4rem;
   padding: 10vh 6vw;
   overflow: hidden;
+  perspective: 1000px;
+}
+
+/* the 3D "world" that holds the depth planes; the pointer tilts this and the
+   perspective turns each plane's translateZ into real parallax */
+.title__world {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.4rem;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+/* far: a cold moon the light-curtains fall from */
+.title__moon {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    34% 26% at 63% 30%,
+    rgba(223, 231, 240, 0.55),
+    rgba(197, 212, 227, 0.16) 42%,
+    transparent 70%
+  );
+  filter: blur(8px);
+}
+
+/* near: drifting dust / night motes (built in JS) */
+.title__dust {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.title__mote {
+  position: absolute;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(232, 228, 218, 0.9),
+    rgba(232, 228, 218, 0) 70%
+  );
+  filter: blur(1.4px);
+  will-change: transform, opacity;
 }
 
 /* spotlight pooled on the title, plus a faint stage floor */
 .title__spot {
   position: absolute;
   inset: 0;
-  z-index: 0;
   pointer-events: none;
   background:
     radial-gradient(
@@ -107,9 +229,41 @@ section {
       rgba(232, 228, 218, 0.1) 100%
     );
 }
-.title > *:not(.title__spot) {
-  position: relative;
-  z-index: 1;
+/* drifting "light curtains" behind the title (built in JS).
+   pushed back in z + dimmer + softer so they read as distant (atmospheric perspective) */
+.title__beams {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  mix-blend-mode: screen;
+  opacity: 0.55;
+  filter: blur(2px);
+  will-change: transform;
+}
+.title__beam {
+  position: absolute;
+  top: -12%;
+  height: 124%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(232, 228, 218, 0.08) 14%,
+    rgba(232, 228, 218, 0.22) 50%,
+    rgba(232, 228, 218, 0.08) 86%,
+    transparent 100%
+  );
+  filter: blur(7px);
+  will-change: transform, opacity;
+}
+
+/* parallax layers — nudged by the pointer for depth */
+.title__layer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.2rem;
+  will-change: transform;
 }
 
 .title__kicker {
@@ -128,15 +282,12 @@ section {
   letter-spacing: 0.01em;
 }
 
-.title__translation {
-  font-family: var(--serif);
-  font-style: italic;
-  font-size: clamp(1rem, 2.4vw, 1.7rem);
-  color: var(--bone-dim);
-}
-
 .title__scroll {
-  margin-top: 3rem;
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: calc(var(--bar, 0px) + 4vh);
+  text-align: center;
   font-size: 0.7rem;
   letter-spacing: 0.5em;
   color: var(--bone-dim);
@@ -147,12 +298,50 @@ section {
   height: 240vh;
 }
 
+/* the bird scene rides above the pinned title so it covers it as it rises */
+#sceneBirds {
+  position: relative;
+  z-index: 1;
+}
+
 .scene__stage {
   position: sticky;
   top: 0;
   height: 100vh;
   overflow: hidden;
   background: #000;
+}
+
+/* each scene emerges from black at its top edge, hiding the section seam */
+.scene__stage::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 14vh;
+  background: linear-gradient(to top, transparent, #000);
+  pointer-events: none;
+  z-index: 3;
+}
+
+/* a scrim under the bottom caption so it stays legible over light artwork
+   (sits above the SVG, below the line) */
+.scene__stage::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 36vh;
+  background: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 0.92) 0%,
+    rgba(0, 0, 0, 0.6) 34%,
+    transparent 100%
+  );
+  pointer-events: none;
+  z-index: 3;
 }
 
 .scene__svg {
@@ -176,6 +365,21 @@ section {
   width: 100%;
   height: 100%;
   display: block;
+}
+
+/* the eating scene carries no baked light. Backlight the head so it reads as a
+   silhouette, the gaping mouth glows, and the dark figure stays visible as it's
+   dragged in and swallowed. The art is near-black on transparent, so this glow
+   shines through the empty mouth and around the head. */
+#sceneEating .scene__svg--vector {
+  background:
+    radial-gradient(
+        58% 56% at 55% 40%,
+        rgba(160, 172, 192, 0.34),
+        rgba(118, 130, 150, 0.12) 46%,
+        transparent 72%
+      ),
+    #000;
 }
 
 .scene__line {
@@ -233,11 +437,52 @@ section {
 }
 
 /* ---------- Intertitles ---------- */
+/* tall section = scroll runway; the stage pins so the dispersion has room to
+   play out and the quote dwells, instead of scrolling straight past */
 .intertitle-scene {
-  min-height: 100vh;
+  position: relative;
+  height: 200vh;
+  background: #000;
+}
+.intertitle-stage {
+  position: sticky;
+  top: 0;
+  height: 100vh;
   display: grid;
   place-items: center;
-  background: #000;
+  overflow: hidden;
+}
+
+/* The decentralisation constellation sits behind the words. */
+.constellation {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.intertitle-scene .intertitle {
+  position: relative;
+  z-index: 1;
+}
+
+/* wrapper carries the scroll-driven dispersion; the dot inside drifts + twinkles */
+.con-star {
+  position: absolute;
+}
+
+.con-star__dot {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at 50% 50%,
+    rgba(236, 231, 220, 0.95),
+    rgba(198, 212, 228, 0.35) 42%,
+    transparent 72%
+  );
 }
 
 .intertitle--long {
@@ -269,6 +514,7 @@ section {
 /* Swedish primary line + English subtitle */
 .sv {
   display: block;
+  font-family: var(--serif);
 }
 
 .en {
@@ -358,10 +604,16 @@ section {
   backdrop-filter: blur(4px);
   transition:
     border-color 0.3s ease,
-    background 0.3s ease;
+    background 0.3s ease,
+    transform 0.16s ease;
 }
-.sound-toggle:hover {
-  border-color: var(--bone);
+.sound-toggle:active {
+  transform: scale(0.97);
+}
+@media (hover: hover) and (pointer: fine) {
+  .sound-toggle:hover {
+    border-color: var(--bone);
+  }
 }
 .sound-toggle__dot {
   width: 7px;
@@ -413,6 +665,27 @@ section {
   font-size: clamp(1.3rem, 3vw, 2.4rem);
 }
 
+/* Understated links: a thin bone rule that warms to the accent on hover. */
+.link {
+  color: var(--bone);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(232, 228, 218, 0.3);
+  transition:
+    color 0.3s ease,
+    border-color 0.3s ease;
+}
+@media (hover: hover) and (pointer: fine) {
+  .link:hover {
+    color: var(--accent);
+    border-color: var(--accent);
+  }
+}
+.link:focus-visible {
+  outline: 1px solid var(--accent);
+  outline-offset: 4px;
+  border-radius: 1px;
+}
+
 .premiere {
   min-height: 100vh;
   display: flex;
@@ -456,21 +729,27 @@ section {
   transition:
     background 0.4s ease,
     color 0.4s ease,
-    border-color 0.4s ease;
+    border-color 0.4s ease,
+    transform 0.16s ease;
+}
+.btn:active {
+  transform: scale(0.97);
 }
 .btn--primary {
   background: var(--bone);
   color: var(--black);
   border-color: var(--bone);
 }
-.btn--primary:hover {
-  background: var(--accent);
-  border-color: var(--accent);
-  color: var(--bone);
-}
-.btn--ghost:hover {
-  border-color: var(--bone);
-  background: rgba(232, 228, 218, 0.08);
+@media (hover: hover) and (pointer: fine) {
+  .btn--primary:hover {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: var(--bone);
+  }
+  .btn--ghost:hover {
+    border-color: var(--bone);
+    background: rgba(232, 228, 218, 0.08);
+  }
 }
 
 .premiere__fineprint {
@@ -480,9 +759,91 @@ section {
   margin-top: 1.5rem;
 }
 
+/* ---------- End stage: the follow-spot reveal, folded into the pinned crawl ---------- */
+/* the closing title only exists inside the pool of light (a moving mask) */
+.endcard__hidden {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  gap: 0.7rem;
+  text-align: center;
+  padding: 12vh 6vw;
+  opacity: 0; /* held back until the credits have scrolled off (set by JS) */
+  --mx: 50%;
+  --my: 50%;
+  -webkit-mask-image: radial-gradient(
+    circle 260px at var(--mx) var(--my),
+    #000 0%,
+    #000 52%,
+    rgba(0, 0, 0, 0.3) 78%,
+    transparent 94%
+  );
+  mask-image: radial-gradient(
+    circle 260px at var(--mx) var(--my),
+    #000 0%,
+    #000 52%,
+    rgba(0, 0, 0, 0.3) 78%,
+    transparent 94%
+  );
+}
+.endcard__title {
+  font-family: var(--serif);
+  font-weight: 300;
+  font-size: clamp(2.2rem, 8vw, 6.5rem);
+  line-height: 0.95;
+  color: var(--bone);
+}
+.endcard__secret {
+  margin: 0;
+  font-family: var(--serif);
+  font-style: italic;
+  font-weight: 300;
+  font-size: clamp(1rem, 3vw, 1.7rem);
+  letter-spacing: 0.02em;
+  color: var(--bone-dim);
+}
+.endcard__secret em {
+  font-style: italic;
+  color: var(--accent);
+}
+/* the warm pool of light itself, tracking the cursor */
+.endcard__spot {
+  position: absolute;
+  left: 0;
+  top: 0;
+  opacity: 0; /* revealed alongside the title */
+  width: 680px;
+  height: 680px;
+  margin: -340px 0 0 -340px;
+  border-radius: 50%;
+  pointer-events: none;
+  background: radial-gradient(
+    circle,
+    rgba(236, 231, 220, 0.18) 0%,
+    rgba(236, 231, 220, 0.08) 40%,
+    transparent 70%
+  );
+  mix-blend-mode: screen;
+  will-change: transform;
+}
+
 @media (prefers-reduced-motion: reduce) {
   #grain {
     display: none;
+  }
+  .curtain {
+    display: none;
+  }
+  .title__beams {
+    display: none;
+  }
+  .film-overlay {
+    opacity: 1;
+  }
+  body.curtain-up {
+    overflow: auto;
+    height: auto;
   }
 }
 

@@ -148,11 +148,17 @@ if (job === 'svg' || job === 'all') {
   await shotSvg('svg-lars', 'assets/lars.svg');
   await shotSvg('svg-skelett', 'assets/skelett.svg');
 }
+if (job === 'curtain' || job === 'live' || job === 'all') {
+  // frames along the curtain timeline (fully lifts ~3.5s after fonts load)
+  await shotPage('curtain-1-red', { wait: 900 });
+  await shotPage('curtain-2-rising', { wait: 2300 });
+}
 if (job === 'live' || job === 'all') {
-  await shotPage('live-title', { wait: 4200 });
-  await shotPage('live-birds-1', { sel: '#sceneBirds', frac: 0.08, wait: 4200 });
+  await shotPage('live-title', { wait: 5000 });
+  await shotPage('live-birds-1', { sel: '#sceneBirds', frac: 0.08, wait: 5000 });
   await shotPage('live-birds-2', { sel: '#sceneBirds', frac: 0.72 });
-  await shotPage('live-skeleton', { sel: '#sceneSkeleton', frac: 0.2 });
+  await shotPage('live-skeleton-faceless', { sel: '#sceneSkeleton', frac: 0.12 });
+  await shotPage('live-skeleton', { sel: '#sceneSkeleton', frac: 0.45 });
   await shotPage('live-lars', { sel: '#sceneLars', frac: 0.35 });
 }
 if (job === 'mobile' || job === 'all') {
@@ -162,8 +168,9 @@ if (job === 'mobile' || job === 'all') {
     isMobile: true,
     reducedMotion: 'no-preference',
   });
-  await shotPage('m-title', { wait: 4200, context: mobileCtx });
-  await shotPage('m-birds', { sel: '#sceneBirds', frac: 0.08, wait: 4200, context: mobileCtx });
+  await shotPage('m-curtain', { wait: 2300, context: mobileCtx });
+  await shotPage('m-title', { wait: 5000, context: mobileCtx });
+  await shotPage('m-birds', { sel: '#sceneBirds', frac: 0.08, wait: 5000, context: mobileCtx });
   await shotPage('m-skeleton', { sel: '#sceneSkeleton', frac: 0.2, context: mobileCtx });
   await shotPage('m-lars', { sel: '#sceneLars', frac: 0.35, context: mobileCtx });
   await mobileCtx.close();

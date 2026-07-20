@@ -1,4 +1,4 @@
-# Innan natten — a landing page
+# Rot — a landing page
 
 A scroll-driven tribute to **Lars Norén**, built for the
 [Web Dev Challenge S3.E5 "The Best Landing Page Ever"](https://codetv.dev/series/web-dev-challenge/s3/e5-best-landing-page-gsap),
@@ -6,19 +6,30 @@ animated with **[GSAP](https://gsap.com/)**.
 
 ## The story
 
-_Innan natten_ ("Before the Night") is a tribute to **Lars Norén**
+_Rot_ (Swedish for "root"; English "rot") is a tribute to **Lars Norén**
 built around his words on art and the market: an art that refuses, that does not
 strive for publicity; the market as the most lethal of poisons, as death that
 makes art rot — resolving, through the decentralisation of society and its
 subcultures, into hope. Text is Swedish (Norén register) with small English
 subtitles; the English-language quote is shown in English.
 
-**Title:** `Innan natten`. To swap, change `<h1 id="titleMain">`, `<title>`, and
+**Title:** `Rot`. To swap, change `<h1 id="titleMain">`, `<title>`, and
 `.premiere__title` in `index.html`.
 
 ## The beats
 
-1. **Title.** Spotlight blooms; the letters resolve out of the grain. `SplitText`.
+0. **Curtain.** A full-screen red "light curtain" (shimmering velvet folds)
+   holds — the theater hasn't started — dips, then rises like a stage curtain to
+   reveal the title. The film grain/frame stays off until it lifts, then fades
+   in. Skipped on `prefers-reduced-motion`.
+1. **Title.** Revealed by the rising curtain itself — the title sits lit behind
+   drifting "light curtains" (soft beams) and is uncovered as the drape lifts.
+   Depth comes from real z-separated planes inside a 3D "world": a cold moon far
+   back (the light source), the receded/blurred beams, the title in the mid
+   plane, and drifting out-of-focus dust motes in the foreground. On fine
+   pointers the whole world tilts to the cursor — perspective turns each plane's
+   depth into genuine parallax — and scrolling away lifts, recedes and dims the
+   world so the depth is felt in motion too.
 2. **The dove** (`birds.svg`) — a hand-shadow dove whose wings flap. The line
    turns on scroll: "Jag vill ha en konst som vägrar." →
    "En konst som inte strävar efter publicitet."
@@ -100,11 +111,10 @@ starter on [Webflow Cloud](https://webflow.com/feature/cloud):
    into it.
 3. `npm i gsap`, move `main.js` into a client script, and swap the CDN
    `<script>` tags for `import { gsap } from "gsap"` +
-   `import { ScrollTrigger } from "gsap/ScrollTrigger"` (and `SplitText`,
-   `DrawSVGPlugin`).
+   `import { ScrollTrigger } from "gsap/ScrollTrigger"`.
 
 ## Notes
 
-- Responsive and honours `prefers-reduced-motion` (grain + projector motion
-  disabled; loader skipped straight to the reel).
+- Responsive and honours `prefers-reduced-motion` (grain, beams, pointer
+  parallax, and the curtain loader are all disabled; the title shows at once).
 - All credits/names are invented — not based on real people.

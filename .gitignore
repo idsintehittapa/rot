@@ -4,4 +4,6 @@ dist/
 *.log
 .env
 .env.*
+# dev-only screenshots from tools/shot.mjs — not part of the site
+preview/
 # keep skills tracked so they travel with the repo
