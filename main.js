@@ -69,11 +69,76 @@
   /* 1. Title — sits lit behind the curtain; the rising drape reveals it */
   /* ------------------------------------------------------------------ */
   const spot = document.getElementById('spot');
+  const titleMain = document.getElementById('titleMain');
+  const titleKicker = document.querySelector('#title .title__kicker');
+  const titleMeta = document.querySelector('#title .endcard__meta');
+  const titleCredits = [titleKicker, titleMeta].filter(Boolean);
 
-  // The rising curtain is the reveal — the title just sits lit behind it,
-  // uncovered as the drape lifts. No separate letter animation.
+  // The curtain is still the reveal — but the title card is choreographed as a
+  // beat. Behind the drape the credits are held out and ROT sits soft and a
+  // touch oversized; as the hem clears, ROT pulls into focus, then the credits
+  // settle in beneath it — a film title card assembling. Set the pre-reveal
+  // state now so none of it flashes during the lift.
+  if (!prefersReduced) {
+    if (titleMain) {
+      gsap.set(titleMain, {
+        opacity: 0.85,
+        scale: 1.05,
+        filter: 'blur(7px)',
+        transformOrigin: '50% 62%',
+      });
+    }
+    gsap.set(titleCredits, {
+      opacity: 0,
+      y: (i, t) => (t === titleKicker ? -8 : 10),
+    });
+  }
+
   function runIntro() {
     if (spot) gsap.set(spot, { autoAlpha: 1, scale: 1 });
+    if (prefersReduced) return;
+
+    const tl = gsap.timeline();
+    if (titleMain) {
+      // focus pull: ROT resolves out of soft-and-large into sharp
+      tl.to(titleMain, {
+        opacity: 1,
+        scale: 1,
+        filter: 'blur(0px)',
+        duration: 1.1,
+        ease: 'power2.out',
+      });
+    }
+    if (titleCredits.length) {
+      // the credits settle in under the title, kicker then premiere line
+      tl.to(
+        titleCredits,
+        { opacity: 1, y: 0, duration: 0.8, ease: 'power2.out', stagger: 0.14 },
+        '-=0.45',
+      );
+    }
+
+    // Bookend: as you scroll off the title, ROT rots — the letters loosen,
+    // tilt, sink and blur into the dark, foreshadowing "it makes art rot
+    // away." Scrubbed, so scrolling back up gathers the word whole again.
+    if (hasSplit && titleMain) {
+      const decay = new SplitText(titleMain, { type: 'chars' });
+      const mid = (decay.chars.length - 1) / 2;
+      gsap.to(decay.chars, {
+        yPercent: 55,
+        xPercent: (i) => (i - mid) * 42,
+        rotation: (i) => (i - mid) * 9,
+        opacity: 0.12,
+        filter: 'blur(6px)',
+        ease: 'none',
+        scrollTrigger: {
+          trigger: '#title',
+          start: 'top top',
+          end: '+=80%',
+          scrub: true,
+        },
+      });
+    }
   }
   /* ------------------------------------------------------------------ */
   /* "Light curtains" — soft beams drifting behind the title            */
