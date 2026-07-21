@@ -81,6 +81,7 @@
           </div>
           <div class="title__layer title__layer--main" data-depth="40">
             <h1 class="title__main" id="titleMain">ROT</h1>
+            <p class="endcard__meta">a movie · Premiere 2026</p>
           </div>
           <div class="title__dust" id="dust" data-depth="170" aria-hidden="true"></div>
         </div>
@@ -88,7 +89,7 @@
       </section>
 
       <!-- 2. SCENE — hand-shadow dove; the line turns as you scroll ------ -->
-      <section class="scene scene--birds scene--dual" id="sceneBirds" aria-label="Bird" data-audio="./assets/audio/01-refuses.mp3">
+      <section class="scene scene--birds scene--dual" id="sceneBirds" aria-label="Bird">
         <div class="scene__stage">
           <div class="scene__svg scene__svg--vector" data-svg="./assets/birds.svg" data-rig="birds" data-fit="slice" data-par="xMinYMid slice" aria-hidden="true"></div>
           <p class="scene__line scene__line--beat" data-beat="0">
@@ -114,7 +115,7 @@
       </section>
 
       <!-- 4. SCENE — the market devours (scroll-scrubbed bite) ----------- -->
-      <section class="scene" id="sceneEating" aria-label="A giant mouth devouring a person" data-audio="./assets/audio/03-poison.mp3">
+      <section class="scene" id="sceneEating" aria-label="A giant mouth devouring a person">
         <div class="scene__stage">
           <div class="scene__svg scene__svg--vector" data-svg="./assets/eating.svg" data-rig="eating" data-fit="meet" aria-hidden="true"></div>
           <p class="scene__line scene__line--bottom" data-scene-line>
@@ -124,7 +125,7 @@
       </section>
 
       <!-- 5. SCENE — the skeleton shadow (push-in) + quote --------------- -->
-      <section class="scene" id="sceneSkeleton" aria-label="Skeleton shadow" data-audio="./assets/audio/04-rot.mp3">
+      <section class="scene" id="sceneSkeleton" aria-label="Skeleton shadow">
         <div class="scene__stage">
           <div class="scene__svg scene__svg--vector" data-svg="./assets/skelett.svg" data-rig="skeleton" data-fit="meet" data-anim="push-in" aria-hidden="true"></div>
           <p class="scene__line scene__line--bottom" data-scene-line>
@@ -135,7 +136,7 @@
 
       <!-- 6. INTERTITLE — decentralisation: one cluster of light disperses
            into many small independent points, each on its own rhythm ------ -->
-      <section class="intertitle-scene" id="sceneDecen" aria-label="Quote" data-audio="./assets/audio/05-decentralisation.mp3">
+      <section class="intertitle-scene" id="sceneDecen" aria-label="Quote" data-score-at="91">
         <div class="intertitle-stage">
           <div class="constellation" id="constellation" aria-hidden="true"></div>
           <p class="intertitle intertitle--long" data-intertitle>
@@ -148,7 +149,7 @@
       </section>
 
       <!-- 7. SCENE — Lars Norén; the hope ------------------------------- -->
-      <section class="scene scene--portrait" id="sceneLars" aria-label="Lars Norén" data-audio="./assets/audio/06-hope.mp3">
+      <section class="scene scene--portrait" id="sceneLars" aria-label="Lars Norén">
         <div class="scene__stage">
           <div class="portrait" id="norenPortrait" data-svg="./assets/lars.svg" data-rig="lars" data-fit="meet" aria-hidden="true"></div>
           <p class="scene__line scene__line--bottom" data-scene-line>
@@ -164,21 +165,29 @@
         <div class="crawl" id="crawl">
           <div class="crawl__inner" id="crawlInner">
             <p class="crawl__role">A film by</p>
-            <p class="crawl__name"><a class="link" href="https://johannablom.com" target="_blank" rel="noopener noreferrer">JO PRODUCTION</a></p>
+            <p class="crawl__name">JO PRODUCTION</p>
             <p class="crawl__role">Words</p>
             <p class="crawl__name">LARS NORÉN</p>
+            <p class="crawl__role">Animation &amp; art</p>
+            <p class="crawl__name"><a class="link" href="https://johannablom.com" target="_blank" rel="noopener noreferrer">Johanna Blom</a></p>
+            <p class="crawl__role">After the interview</p>
+            <p class="crawl__name"><a class="link" href="https://www.youtube.com/watch?v=EVmRsLBdZV8" target="_blank" rel="noopener noreferrer">Advice to the Young</a></p>
             <p class="crawl__role">Built for</p>
-            <p class="crawl__name"><a class="link" href="https://codetv.dev/series/web-dev-challenge/s3/e5-best-landing-page-gsap" target="_blank" rel="noopener noreferrer">WEB DEV CHALLENGE</a></p>
-            <p class="crawl__role">Quotations from</p>
-            <p class="crawl__name"><a class="link" href="https://www.youtube.com/watch?v=EVmRsLBdZV8" target="_blank" rel="noopener noreferrer">Lars Norén Interview: Advice to the Young</a></p>
+            <p class="crawl__name"><a class="link" href="https://codetv.dev/series/web-dev-challenge/s3/e5-best-landing-page-gsap" target="_blank" rel="noopener noreferrer">Web Dev Challenge</a></p>
           </div>
+          <!-- the playbill, revealed only inside the follow-spot -->
           <div class="endcard__hidden" id="endHidden">
             <h2 class="endcard__title">ROT</h2>
+            <p class="endcard__meta">a movie · Premiere 2026</p>
           </div>
           <div class="endcard__spot" id="endSpot" aria-hidden="true"></div>
         </div>
       </section>
     </main>
+
+    <!-- Continuous score. Toggled on by the viewer (autoplay-safe); loops under
+         the whole piece. Save the track as assets/audio/score.mp3. -->
+    <audio id="score" src="./assets/audio/score.mp3" preload="none" loop></audio>
 
     <script defer src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/ScrollTrigger.min.js"></script>

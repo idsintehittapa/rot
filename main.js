@@ -149,31 +149,31 @@
       },
     });
 
-    tl.to({}, { duration: 0.8 }) // staging: the theater hasn't started yet
+    tl.to({}, { duration: 0.35 }) // a brief beat — the house lights drop
       // hand skew control from the ambient sway to the lift, settling to neutral
       .add(() => sway.kill())
-      .to(curtain, { skewX: 0, x: 0, duration: 0.35, ease: 'sine.inOut' })
-      // Anticipation: the drape gathers UPward — a squash from the top so the
-      // hem lifts and tenses before the haul. (Never a downward sag, which
-      // would open a black gap at the top of frame.)
-      .to(curtain, { scaleY: 0.972, duration: 0.5, ease: 'power2.out' })
-      .to(curtain, { scaleY: 0.992, duration: 0.18, ease: 'sine.inOut' })
+      .to(curtain, { skewX: 0, x: 0, duration: 0.22, ease: 'sine.inOut' })
+      // Anticipation: a quick UPward gather — a squash from the top so the hem
+      // tenses before the haul. (Never a downward sag, which would open a black
+      // gap at the top of frame.) Kept short so it reads as intent, not a stall.
+      .to(curtain, { scaleY: 0.972, duration: 0.28, ease: 'power2.out' })
+      .to(curtain, { scaleY: 0.992, duration: 0.1, ease: 'sine.inOut' })
       .addLabel('lift')
-      // The haul: heavy and reluctant at first, then it flies up into the loft
-      // (slow in, then accelerate off — the weight is greatest at the start).
-      .to(curtain, { yPercent: -100, duration: 2.5, ease: 'power2.in' }, 'lift')
-      // Squash & stretch: the hem drags and the fabric stretches as it's yanked
-      // up to speed, then recovers as it clears (follow-through).
-      .to(curtain, { scaleY: 1.08, duration: 0.9, ease: 'sine.out' }, 'lift')
-      .to(curtain, { scaleY: 1, duration: 1.3, ease: 'sine.inOut' }, 'lift+=0.9')
+      // The haul: one confident, decisive pull up into the loft. Still a touch
+      // of weight at the start (slow-in) but it commits and flies — no dawdling.
+      .to(curtain, { yPercent: -100, duration: 1.7, ease: 'power2.in' }, 'lift')
+      // Squash & stretch: the fabric stretches as it's yanked up to speed, then
+      // recovers as it clears (follow-through).
+      .to(curtain, { scaleY: 1.07, duration: 0.55, ease: 'sine.out' }, 'lift')
+      .to(curtain, { scaleY: 1, duration: 0.9, ease: 'sine.inOut' }, 'lift+=0.55')
       // Overlapping action / arcs: the drape swings as it's hauled, the swing
       // trailing the pull before it settles.
-      .to(curtain, { skewX: -1.5, duration: 0.7, ease: 'sine.inOut' }, 'lift')
-      .to(curtain, { skewX: 0.5, duration: 0.9, ease: 'sine.inOut' }, 'lift+=0.7')
-      .to(curtain, { skewX: 0, duration: 0.9, ease: 'sine.inOut' }, 'lift+=1.6')
+      .to(curtain, { skewX: -1.4, duration: 0.5, ease: 'sine.inOut' }, 'lift')
+      .to(curtain, { skewX: 0.4, duration: 0.6, ease: 'sine.inOut' }, 'lift+=0.5')
+      .to(curtain, { skewX: 0, duration: 0.6, ease: 'sine.inOut' }, 'lift+=1.1')
       // the title is uncovered as the hem clears; the film frame then fades in
-      .add(() => onReveal && onReveal(), 'lift+=1.75')
-      .add(() => showFilm(true), 'lift+=2.05');
+      .add(() => onReveal && onReveal(), 'lift+=1.15')
+      .add(() => showFilm(true), 'lift+=1.45');
   }
 
   function startOpening() {
@@ -280,7 +280,7 @@
   let scrollHintTween = null;
   if (scrollHint && !prefersReduced) {
     scrollHintTween = gsap.to(scrollHint, {
-      opacity: 0.25,
+      opacity: 0.5,
       y: 8,
       duration: 1.1,
       repeat: -1,
@@ -878,7 +878,7 @@
     for (let i = 0; i < N; i++) {
       const hx = gsap.utils.random(5, 95); // "home" position, % of the scene
       const hy = gsap.utils.random(8, 92);
-      const size = gsap.utils.random(2, 7);
+      const size = gsap.utils.random(2.5, 9);
       const star = document.createElement('span');
       star.className = 'con-star';
       star.style.cssText = `left:${hx}%;top:${hy}%;width:${size}px;height:${size}px`;
@@ -931,7 +931,7 @@
           ease: 'sine.inOut',
         }),
         gsap.to(dot, {
-          opacity: gsap.utils.random(0.2, 0.6),
+          opacity: gsap.utils.random(0.5, 0.95),
           duration: gsap.utils.random(1.6, 4),
           repeat: -1,
           yoyo: true,
@@ -1007,65 +1007,62 @@
   });
 
   /* ------------------------------------------------------------------ */
-  /* Narration audio (dormant until files exist in assets/audio/)        */
-  /* Each [data-audio] section plays its clip on enter, once sound is    */
-  /* enabled via the toggle (a user gesture — autoplay-policy safe).     */
+  /* Score — one continuous piano track under the whole piece, toggled   */
+  /* on by the viewer (a user gesture, so autoplay policy is satisfied)  */
+  /* and looping. Mood anchors: any section tagged [data-score-at="secs"]*/
+  /* seeks the track to that moment as it scrolls in, so a chosen musical */
+  /* passage lands on a chosen scene. The seek is masked by a quick       */
+  /* volume dip + rise so the jump isn't jarring (fine for ambient piano).*/
   /* ------------------------------------------------------------------ */
   const soundToggle = document.getElementById('soundToggle');
-  const audioSections = gsap.utils.toArray('[data-audio]');
-  if (soundToggle && audioSections.length) {
+  const score = document.getElementById('score');
+  if (soundToggle && score) {
     let soundOn = false;
-    let current = null;
-    const clips = new Map();
+    const FULL = 0.7; // ceiling volume for the score
 
-    const clipFor = (src) => {
-      if (!clips.has(src)) {
-        const a = new Audio(src);
-        a.preload = 'none';
-        clips.set(src, a);
-      }
-      return clips.get(src);
-    };
-
-    const playClip = (src) => {
-      if (!soundOn) return;
-      if (current && current.src.indexOf(src) === -1) {
-        gsap.to(current, {
-          volume: 0,
-          duration: 0.6,
-          onComplete: () => current.pause(),
-        });
-      }
-      const a = clipFor(src);
-      a.volume = 0;
-      a.currentTime = 0;
-      a.play()
-        .then(() => gsap.to(a, { volume: 1, duration: 0.8 }))
-        .catch(() => {}); // missing file / blocked — stay silent
-      current = a;
-    };
-
-    audioSections.forEach((sec) => {
-      ScrollTrigger.create({
-        trigger: sec,
-        start: 'top 60%',
-        end: 'bottom 40%',
-        onEnter: () => playClip(sec.dataset.audio),
-        onEnterBack: () => playClip(sec.dataset.audio),
+    const fadeTo = (vol, dur, onDone) =>
+      gsap.to(score, {
+        volume: vol,
+        duration: dur,
+        ease: 'sine.inOut',
+        onComplete: onDone,
       });
-    });
 
     soundToggle.hidden = false;
     soundToggle.addEventListener('click', () => {
       soundOn = !soundOn;
       soundToggle.setAttribute('aria-pressed', String(soundOn));
-      if (!soundOn && current) {
-        gsap.to(current, {
-          volume: 0,
-          duration: 0.4,
-          onComplete: () => current.pause(),
-        });
+      if (soundOn) {
+        score.volume = 0;
+        score
+          .play()
+          .then(() => fadeTo(FULL, 1.2))
+          .catch(() => {}); // missing file / blocked — stay silent
+      } else {
+        fadeTo(0, 0.6, () => score.pause());
       }
+    });
+
+    // mood anchors — seek to a musical moment as a scene arrives (scroll down)
+    gsap.utils.toArray('[data-score-at]').forEach((sec) => {
+      const at = parseFloat(sec.dataset.scoreAt);
+      if (Number.isNaN(at)) return;
+      ScrollTrigger.create({
+        trigger: sec,
+        start: 'top 60%',
+        onEnter: () => {
+          if (!soundOn) return;
+          // dip, seek, rise — a soft crossfade over the jump in the track
+          fadeTo(0, 0.35, () => {
+            try {
+              score.currentTime = at;
+            } catch (e) {
+              /* seek not ready — ignore */
+            }
+            fadeTo(FULL, 0.7);
+          });
+        },
+      });
     });
   }
 
