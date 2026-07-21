@@ -573,13 +573,17 @@
       );
     }
 
-    // A considered performance. The pupils lead each look and the head follows
-    // a beat later along an arc (overlapping action); real holds between moves
-    // (timing); and a recurring slow lift of the head + gaze "toward the hope" —
-    // a small settle first (anticipation), a slow-out rise, a held beat
-    // (staging), then home. The pupils have lots of horizontal room but almost
-    // none vertically, so the head tilt carries the "looking up" of the lift.
-    if (head || pupils.length) {
+    const scene = document.getElementById('sceneLars');
+    const pointerFine = window.matchMedia('(pointer: fine)').matches;
+
+    // On touch / coarse pointers there is no cursor to meet, so he performs on
+    // his own: the pupils lead each look and the head follows a beat later along
+    // an arc (overlapping action), with real holds between moves (timing) and a
+    // recurring slow lift of head + gaze "toward the hope" — a small settle
+    // (anticipation), a slow-out rise, a held beat (staging), then home. The
+    // pupils have horizontal room but little vertical, so the head tilt carries
+    // the "looking up."
+    if (!pointerFine && (head || pupils.length)) {
       const perf = gsap.timeline({
         repeat: -1,
         repeatRefresh: true,
@@ -592,21 +596,97 @@
         .to(pupils, { x: 9, y: 1.5, duration: 0.8 })
         .to(head, { rotation: 0.7, x: 4, duration: 1.1 }, '<0.12')
         .to({}, { duration: 'random(0.6, 1.1)' })
-        // anticipation — a small downward settle before the lift
         .to(pupils, { y: 1.5, duration: 0.3, ease: 'power1.in' })
         .to(head, { y: 5, rotation: 0.9, duration: 0.3, ease: 'power1.in' }, '<')
-        // the hope — head lifts and tilts up, pupils drift up just slightly
         .to(head, { rotation: -0.2, x: 0, y: -16, duration: 1.6, ease: 'power2.out' })
         .to(pupils, { x: 0, y: -1.5, duration: 1.2, ease: 'power2.out' }, '<0.15')
         .to({}, { duration: 'random(1.5, 2.4)' })
-        // ease home
         .to(head, { rotation: 0, x: 0, y: 0, duration: 1.5 })
         .to(pupils, { x: 0, y: 0, duration: 1.2 }, '<');
       idleLoops.push(perf);
     }
 
-    // play the performance only while the portrait is on screen
-    const st = keepInView(document.getElementById('sceneLars'), idleLoops);
+    // idle loops (breath + any autonomous performance) only run while on screen
+    const st = keepInView(scene, idleLoops);
+
+    // Gaze-follow (fine pointers): he notices you and follows the cursor — the
+    // eyes lead and the head turns a few degrees to regard you. It is the same
+    // reverence as the scripted look, now aimed at the viewer. The "hope" lift
+    // still breaks through now and then, overriding the gaze to draw his eyes
+    // up, hold, then release; when the cursor rests, his gaze eases back to
+    // centre. Decorative mouse-tracking, always eased — never tied raw to the
+    // pointer (per the motion standards).
+    if (pointerFine && head) {
+      const clamp = gsap.utils.clamp;
+      const cur = { px: 0, py: 0, hr: 0, hx: 0, hy: 0 };
+      const tgt = { px: 0, py: 0, hr: 0, hx: 0, hy: 0 };
+      const keys = ['px', 'py', 'hr', 'hx', 'hy'];
+      const restMs = 800; // how long the cursor rests before his gaze eases back
+      let mode = 'watch';
+      let lastMove = -Infinity;
+
+      window.addEventListener(
+        'pointermove',
+        (e) => {
+          if (mode !== 'watch') return;
+          const r = mount.getBoundingClientRect();
+          if (!r.width) return;
+          const nx = clamp(-1, 1, (e.clientX - (r.left + r.width / 2)) / (r.width / 2));
+          const ny = clamp(-1, 1, (e.clientY - (r.top + r.height / 2)) / (r.height / 2));
+          // eyes get most of the range; the head turns just a few degrees
+          tgt.px = nx * 12;
+          tgt.py = ny * 3;
+          tgt.hr = nx * 1.6;
+          tgt.hx = nx * 5;
+          tgt.hy = ny * 3;
+          lastMove = performance.now();
+        },
+        { passive: true },
+      );
+
+      const tick = () => {
+        if (st && !st.isActive) return;
+        // after the cursor rests a moment, let his gaze drift back to centre
+        if (mode === 'watch' && performance.now() - lastMove > restMs) {
+          for (const key of keys) tgt[key] *= 0.97;
+        }
+        // watch: smooth spring toward the gaze target. hope: follow the scripted
+        // lift exactly (k=1) so its easing reads through.
+        const k = mode === 'hope' ? 1 : 0.09;
+        let moved = 0;
+        for (const key of keys) {
+          const d = (tgt[key] - cur[key]) * k;
+          cur[key] += d;
+          moved += Math.abs(d);
+        }
+        if (moved > 0.0006) {
+          gsap.set(pupils, { x: cur.px, y: cur.py });
+          gsap.set(head, { rotation: cur.hr, x: cur.hx, y: cur.hy });
+        }
+      };
+      gsap.ticker.add(tick);
+
+      const scheduleHope = () => gsap.delayedCall(gsap.utils.random(6, 11), doHope);
+      function doHope() {
+        if (st && !st.isActive) return scheduleHope();
+        mode = 'hope';
+        gsap
+          .timeline({
+            onComplete: () => {
+              mode = 'watch';
+              lastMove = performance.now() - restMs; // gaze is free to follow again
+            },
+          })
+          // anticipation — a small downward settle
+          .to(tgt, { hy: 5, hr: 0.9, hx: 0, py: 1.5, px: 0, duration: 0.35, ease: 'power1.in' })
+          // the hope — head lifts and tilts up, eyes drift up
+          .to(tgt, { hy: -16, hr: -0.2, hx: 0, py: -1.5, px: 0, duration: 1.6, ease: 'power2.out' })
+          .to({}, { duration: 'random(1.6, 2.6)' })
+          // home, back to watching
+          .to(tgt, { hy: 0, hr: 0, hx: 0, py: 0, px: 0, duration: 1.5, ease: 'sine.inOut' });
+      }
+      scheduleHope();
+    }
 
     // Blinks — timing/secondary action: a quick close/open on a random gap,
     // with the occasional double blink. Runs only while in view.
