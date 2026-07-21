@@ -269,17 +269,18 @@ body.curtain-up {
 .title__kicker {
   font-size: 0.82rem;
   letter-spacing: 0.46em;
-  color: rgba(232, 228, 218, 0.82);
+  color: var(--bone);
   max-width: 40ch;
   line-height: 1.8;
-  text-shadow: 0 1px 18px rgba(0, 0, 0, 0.9);
+  /* solid bone + a strong dark halo so it stays legible over the moon glow */
+  text-shadow: 0 1px 18px rgba(0, 0, 0, 0.95);
 }
 
 .title__main {
   font-family: var(--serif);
   font-weight: 300;
-  font-size: clamp(2.6rem, 11vw, 11rem);
-  line-height: 0.94;
+  font-size: clamp(2.6rem, 25vw, 22rem);
+  line-height: 0.9;
   letter-spacing: 0.01em;
   /* the moon lights from the upper-right: the letters cast a soft shadow
      down-left, and catch a faint highlight on their moon-side edge. Keeps
@@ -647,13 +648,18 @@ body.curtain-up {
   border-bottom: 1px solid rgba(232, 228, 218, 0.3);
   transition:
     color 0.3s ease,
-    border-color 0.3s ease;
+    border-color 0.3s ease,
+    opacity 0.15s ease;
 }
 @media (hover: hover) and (pointer: fine) {
   .link:hover {
     color: var(--accent);
     border-color: var(--accent);
   }
+}
+/* press feedback — inline links can't scale, so dip opacity (works on touch too) */
+.link:active {
+  opacity: 0.6;
 }
 .link:focus-visible {
   outline: 1px solid var(--accent);
@@ -703,7 +709,9 @@ body.curtain-up {
   font-size: clamp(0.62rem, 1.6vw, 0.8rem);
   letter-spacing: 0.42em;
   text-transform: uppercase;
-  color: var(--bone-dim);
+  /* lifted off --bone-dim for contrast; dark halo covers the title's moon glow */
+  color: rgba(232, 228, 218, 0.88);
+  text-shadow: 0 1px 14px rgba(0, 0, 0, 0.9);
 }
 /* the warm pool of light itself, tracking the cursor */
 .endcard__spot {

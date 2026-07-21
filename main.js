@@ -113,7 +113,7 @@
       // the credits settle in under the title, kicker then premiere line
       tl.to(
         titleCredits,
-        { opacity: 1, y: 0, duration: 0.8, ease: 'power2.out', stagger: 0.14 },
+        { opacity: 1, y: 0, duration: 0.8, ease: 'power2.out', stagger: 0.1 },
         '-=0.45',
       );
     }
@@ -586,22 +586,22 @@
         defaults: { ease: 'sine.inOut' },
       });
       perf
-        .to(pupils, { x: -13, y: 1, duration: 1.1 })
-        .to(head, { rotation: -1.2, x: -6, duration: 1.6 }, '<0.18')
-        .to({}, { duration: 'random(1.6, 2.8)' })
-        .to(pupils, { x: 9, y: 1.5, duration: 1.3 })
-        .to(head, { rotation: 0.7, x: 4, duration: 1.7 }, '<0.18')
-        .to({}, { duration: 'random(1.4, 2.4)' })
+        .to(pupils, { x: -13, y: 1, duration: 0.7 })
+        .to(head, { rotation: -1.2, x: -6, duration: 1.0 }, '<0.12')
+        .to({}, { duration: 'random(0.7, 1.3)' })
+        .to(pupils, { x: 9, y: 1.5, duration: 0.8 })
+        .to(head, { rotation: 0.7, x: 4, duration: 1.1 }, '<0.12')
+        .to({}, { duration: 'random(0.6, 1.1)' })
         // anticipation — a small downward settle before the lift
-        .to(pupils, { y: 1.5, duration: 0.45, ease: 'power1.in' })
-        .to(head, { y: 5, rotation: 0.9, duration: 0.45, ease: 'power1.in' }, '<')
+        .to(pupils, { y: 1.5, duration: 0.3, ease: 'power1.in' })
+        .to(head, { y: 5, rotation: 0.9, duration: 0.3, ease: 'power1.in' }, '<')
         // the hope — head lifts and tilts up, pupils drift up just slightly
-        .to(head, { rotation: -0.2, x: 0, y: -16, duration: 2.3, ease: 'power2.out' })
-        .to(pupils, { x: 0, y: -1.5, duration: 1.7, ease: 'power2.out' }, '<0.2')
-        .to({}, { duration: 'random(2.2, 3.4)' })
+        .to(head, { rotation: -0.2, x: 0, y: -16, duration: 1.6, ease: 'power2.out' })
+        .to(pupils, { x: 0, y: -1.5, duration: 1.2, ease: 'power2.out' }, '<0.15')
+        .to({}, { duration: 'random(1.5, 2.4)' })
         // ease home
-        .to(head, { rotation: 0, x: 0, y: 0, duration: 2.1 })
-        .to(pupils, { x: 0, y: 0, duration: 1.7 }, '<');
+        .to(head, { rotation: 0, x: 0, y: 0, duration: 1.5 })
+        .to(pupils, { x: 0, y: 0, duration: 1.2 }, '<');
       idleLoops.push(perf);
     }
 
@@ -621,9 +621,9 @@
             .to(whites, { scaleY: 1, duration: 0.12, ease: 'power2.out' });
         }
       }
-      gsap.delayedCall(gsap.utils.random(2.4, 6), blink);
+      gsap.delayedCall(gsap.utils.random(1.8, 4.5), blink);
     };
-    gsap.delayedCall(gsap.utils.random(1.5, 3.5), blink);
+    gsap.delayedCall(gsap.utils.random(0.5, 1.5), blink);
   }
 
   // The market devours: a giant profile mouth, a small figure at the lip.
