@@ -58,7 +58,7 @@
   }
 
   /* ------------------------------------------------------------------ */
-  /* 1. Title — spotlight blooms, letters resolve out of the grain      */
+  /* 1. Title — sits lit behind the curtain; the rising drape reveals it */
   /* ------------------------------------------------------------------ */
   const spot = document.getElementById('spot');
 
@@ -597,7 +597,7 @@
       .to(victim, { x: -34, rotation: 10, duration: 0.22, ease: 'power1.in' }, 'draw')
       // the pull-in — the figure is dragged straight back into the throat (x
       // only), sliding behind the face (it sits at the bottom of the stack) and
-      // dissolving into the dark as it goes
+      // fading as it goes
       .to(victim, {
         x: -300,
         scale: 0.34,
@@ -784,6 +784,9 @@
       const res = await fetch(el.dataset.svg);
       if (!res.ok) return;
       const prefix = (el.dataset.rig || 'svg') + '-';
+      // data-svg must point only at our own first-party art. We inline it via
+      // innerHTML so GSAP can reach named parts; scripts inserted this way don't
+      // execute, but never source data-svg from user input or a remote origin.
       el.innerHTML = namespaceIds(await res.text(), prefix);
       const svg = el.querySelector('svg');
       if (svg) {
@@ -967,7 +970,7 @@
   /* ------------------------------------------------------------------ */
   /* Data-driven scene motion: [data-anim="zoom-out" | "push-in"]       */
   /* Each animated stage scrubs its scale across the scene, plus a      */
-  /* gentle drift (per-figure if .figure groups exist, else whole stage)*/
+  /* gentle idle drift of the whole stage.                              */
   /* ------------------------------------------------------------------ */
   gsap.utils.toArray('[data-anim]').forEach((stage) => {
     const scene = stage.closest('section');
@@ -991,38 +994,16 @@
     );
 
     if (prefersReduced) return;
-    // collect the idle drift so it only runs while the scene is on screen
-    const idle = [];
-    const figs = stage.querySelectorAll('.figure');
-    if (figs.length) {
-      figs.forEach((f, i) => {
-        idle.push(
-          gsap.to(f, {
-            y: gsap.utils.random(-10, 10),
-            x: gsap.utils.random(-6, 6),
-            rotation: gsap.utils.random(-1.2, 1.2),
-            transformOrigin: '50% 100%',
-            duration: gsap.utils.random(3.5, 5.5),
-            delay: i * 0.3,
-            repeat: -1,
-            yoyo: true,
-            ease: 'sine.inOut',
-          }),
-        );
-      });
-    } else {
-      idle.push(
-        gsap.to(stage, {
-          x: 6,
-          y: -5,
-          duration: 5,
-          repeat: -1,
-          yoyo: true,
-          ease: 'sine.inOut',
-        }),
-      );
-    }
-    keepInView(scene, idle);
+    // a slow idle drift of the whole stage, gated to run only while on screen
+    const drift = gsap.to(stage, {
+      x: 6,
+      y: -5,
+      duration: 5,
+      repeat: -1,
+      yoyo: true,
+      ease: 'sine.inOut',
+    });
+    keepInView(scene, drift);
   });
 
   /* ------------------------------------------------------------------ */

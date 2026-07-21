@@ -352,10 +352,6 @@ body.curtain-up {
   filter: var(--film);
 }
 
-.scene__svg image {
-  filter: contrast(1.05);
-}
-
 /* inlined vector scenes — keep vector edges crisp, fill the stage */
 .scene__svg--vector {
   filter: none;
