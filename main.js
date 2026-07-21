@@ -6,6 +6,14 @@
 
   gsap.registerPlugin(ScrollTrigger);
 
+  // Full GSAP suite is free as of 3.13; these two carry the "kinetic" moments
+  // (masked type reveals, and the letters rotting into ash). Both are optional —
+  // if a build is blocked/unavailable, the reveals degrade to a plain fade.
+  const hasSplit = typeof SplitText !== 'undefined';
+  const hasPhysics = typeof Physics2DPlugin !== 'undefined';
+  if (hasSplit) gsap.registerPlugin(SplitText);
+  if (hasPhysics) gsap.registerPlugin(Physics2DPlugin);
+
   // Idle/looping animations should only run while their section is on screen.
   // Pass the section element and the looping tween(s): they play on enter and
   // pause on leave (and start paused if the section isn't currently visible).
@@ -943,29 +951,123 @@
   })();
 
   /* ------------------------------------------------------------------ */
-  /* Generic scene line reveals (fade + rise, once, on enter)           */
+  /* Scene line reveals — the words themselves perform                  */
   /* ------------------------------------------------------------------ */
-  gsap.utils.toArray('[data-scene-line], [data-intertitle]').forEach((line) => {
-    // reduced motion: keep the comprehension cue (a plain fade), drop the
-    // movement and blur
-    if (prefersReduced) {
-      gsap.from(line, {
-        opacity: 0,
-        duration: 0.6,
-        ease: 'power1.out',
-        scrollTrigger: { trigger: line, start: 'top 80%', once: true },
+  // A Norén piece is about language, so the type earns the spectacle: words
+  // rise from behind a per-line mask (SplitText) instead of the whole block
+  // fading in. Runs after fonts load so line-breaks are measured correctly.
+  // Falls back to a plain fade under reduced motion or if SplitText is absent.
+  function plainReveal(el) {
+    gsap.from(
+      el,
+      prefersReduced
+        ? {
+            opacity: 0,
+            duration: 0.6,
+            ease: 'power1.out',
+            scrollTrigger: { trigger: el, start: 'top 80%', once: true },
+          }
+        : {
+            opacity: 0,
+            filter: 'blur(12px)',
+            y: 26,
+            duration: 1.2,
+            ease: 'power3.out',
+            scrollTrigger: { trigger: el, start: 'top 80%', once: true },
+          },
+    );
+  }
+
+  function setupLineReveals() {
+    gsap
+      .utils
+      .toArray('[data-scene-line]:not([data-rot]), [data-intertitle]')
+      .forEach((line) => {
+        if (prefersReduced || !hasSplit) {
+          plainReveal(line);
+          return;
+        }
+        // words rise from behind their line's mask, staggered left-to-right;
+        // once read, revert to clean text so nothing lingers to reflow on resize
+        const split = new SplitText(line, { type: 'lines,words', mask: 'lines' });
+        gsap.from(split.words, {
+          yPercent: 110,
+          opacity: 0,
+          duration: 0.9,
+          ease: 'power3.out',
+          stagger: { amount: 0.5, from: 'start' },
+          scrollTrigger: { trigger: line, start: 'top 82%', once: true },
+          onComplete: () => split.revert(),
+        });
       });
+
+    // "The market is death. It makes art rot away." — the line about rot.
+    // The sentence assembles and is read; then only the final words, "rot
+    // away", crumble into ash on physics velocities and fall, while the rest
+    // holds. Scrolling back up gathers them home. The thesis, made kinetic.
+    const rotLine = document.querySelector('[data-rot]');
+    if (!rotLine) return;
+    if (prefersReduced || !hasSplit) {
+      plainReveal(rotLine);
       return;
     }
-    gsap.from(line, {
+
+    const split = new SplitText(rotLine, { type: 'words,chars' });
+    gsap.from(split.words, {
       opacity: 0,
-      filter: 'blur(12px)',
-      y: 26,
-      duration: 1.2,
+      filter: 'blur(10px)',
+      yPercent: 60,
+      duration: 0.9,
       ease: 'power3.out',
-      scrollTrigger: { trigger: line, start: 'top 80%', once: true },
+      stagger: 0.05,
+      scrollTrigger: { trigger: rotLine, start: 'top 80%', once: true },
     });
-  });
+
+    if (!hasPhysics) return;
+    // only the last two words — "rot away" — are allowed to fall
+    const lastWords = split.words.slice(-2);
+    const fallChars = split.chars.filter((c) =>
+      lastWords.some((w) => w.contains(c)),
+    );
+
+    // fall: tail-first (the period, then "away", then "rot") so the line
+    // decays from its end. overwrite lets the re-gather interrupt it cleanly.
+    const rot = () =>
+      gsap.to(fallChars, {
+        duration: 1.8,
+        physics2D: {
+          velocity: 'random(40, 120)',
+          angle: 'random(70, 110)',
+          gravity: 240,
+        },
+        rotation: 'random(-140, 140)',
+        opacity: 0,
+        filter: 'blur(4px)',
+        ease: 'power1.in',
+        stagger: { each: 0.03, from: 'end' },
+        overwrite: true,
+      });
+    // gather: letters ease back to their place, so scrolling up restores the line
+    const gather = () =>
+      gsap.to(fallChars, {
+        duration: 0.6,
+        x: 0,
+        y: 0,
+        rotation: 0,
+        opacity: 1,
+        filter: 'blur(0px)',
+        ease: 'power2.out',
+        stagger: { each: 0.02, from: 'start' },
+        overwrite: true,
+      });
+
+    ScrollTrigger.create({
+      trigger: '#sceneSkeleton',
+      start: 'center 36%',
+      onEnter: rot,
+      onLeaveBack: gather,
+    });
+  }
 
   /* ------------------------------------------------------------------ */
   /* Data-driven scene motion: [data-anim="zoom-out" | "push-in"]       */
@@ -1224,8 +1326,14 @@
     }
   }
 
+  function afterFonts() {
+    setupLineReveals();
+    ScrollTrigger.refresh();
+  }
   if (document.fonts && document.fonts.ready) {
-    document.fonts.ready.then(() => ScrollTrigger.refresh());
+    document.fonts.ready.then(afterFonts);
+  } else {
+    afterFonts();
   }
   window.addEventListener('load', () => ScrollTrigger.refresh());
 })();
