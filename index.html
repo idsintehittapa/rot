@@ -59,11 +59,13 @@
       <div class="bar bar--top"></div>
       <div class="bar bar--bottom"></div>
     </div>
-    <!-- Sound toggle (dormant until you add files to assets/audio/) -->
+    <!-- Sound: a lazy-loaded score, opt-in via this toggle (browsers block
+         autoplay). A one-time hint nudges toward it once the title settles. -->
     <button class="sound-toggle" id="soundToggle" type="button" aria-pressed="false" hidden>
       <span class="sound-toggle__dot"></span>
       <span class="sound-toggle__label">sound</span>
     </button>
+    <p class="sound-hint" id="soundHint" aria-hidden="true">Best with sound</p>
 
     <main id="film">
       <!-- The bird scene scrolls up and covers the pinned title; both then
@@ -136,7 +138,7 @@
 
       <!-- 6. INTERTITLE — decentralisation: one cluster of light disperses
            into many small independent points, each on its own rhythm ------ -->
-      <section class="intertitle-scene" id="sceneDecen" aria-label="Quote" data-score-at="91">
+      <section class="intertitle-scene" id="sceneDecen" aria-label="Quote" data-score-at="90.2">
         <div class="intertitle-stage">
           <div class="constellation" id="constellation" aria-hidden="true"></div>
           <p class="intertitle intertitle--long" data-intertitle>

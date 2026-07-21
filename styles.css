@@ -569,6 +569,41 @@ body.curtain-up {
   box-shadow: 0 0 10px var(--accent);
 }
 
+/* One-time nudge toward the opt-in score. Revealed + dismissed by JS. */
+.sound-hint {
+  position: fixed;
+  right: calc(14px + 1.2rem);
+  bottom: calc(var(--bar) + 3.4rem);
+  z-index: 9200;
+  font-family: var(--sans);
+  font-size: 0.6rem;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--bone-dim);
+  text-shadow: 0 1px 12px rgba(0, 0, 0, 0.85);
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+}
+/* a soft breathing glow on the toggle while the hint is live */
+@media (prefers-reduced-motion: no-preference) {
+  .sound-toggle--hint {
+    animation: soundNudge 2.6s ease-in-out infinite;
+  }
+}
+@keyframes soundNudge {
+  0%,
+  100% {
+    border-color: rgba(232, 228, 218, 0.3);
+    box-shadow: 0 0 0 rgba(232, 228, 218, 0);
+  }
+  50% {
+    border-color: rgba(232, 228, 218, 0.7);
+    box-shadow: 0 0 14px rgba(232, 228, 218, 0.28);
+  }
+}
+
 /* ---------- 7. Finale ---------- */
 .finale {
   background: #000;

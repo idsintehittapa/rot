@@ -1029,7 +1029,29 @@
       });
 
     soundToggle.hidden = false;
+
+    // A one-time, unobtrusive nudge toward the opt-in score (autoplay is
+    // blocked, so people must choose sound). It appears once the title has
+    // settled and bows out on the first interaction or after a few seconds.
+    const soundHint = document.getElementById('soundHint');
+    let hintDone = false;
+    const dismissHint = () => {
+      if (hintDone) return;
+      hintDone = true;
+      soundToggle.classList.remove('sound-toggle--hint');
+      if (soundHint) gsap.to(soundHint, { autoAlpha: 0, duration: 0.6 });
+    };
+    const showHint = () => {
+      if (hintDone) return;
+      soundToggle.classList.add('sound-toggle--hint');
+      if (soundHint) gsap.to(soundHint, { autoAlpha: 1, duration: 0.8 });
+      gsap.delayedCall(7, dismissHint);
+    };
+    gsap.delayedCall(prefersReduced ? 0.8 : 3.4, showHint);
+    window.addEventListener('scroll', dismissHint, { once: true, passive: true });
+
     soundToggle.addEventListener('click', () => {
+      dismissHint();
       soundOn = !soundOn;
       soundToggle.setAttribute('aria-pressed', String(soundOn));
       if (soundOn) {
