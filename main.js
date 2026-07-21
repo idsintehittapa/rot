@@ -5,8 +5,6 @@
   ).matches;
 
   gsap.registerPlugin(ScrollTrigger);
-  const hasDraw = typeof DrawSVGPlugin !== 'undefined';
-  if (hasDraw) gsap.registerPlugin(DrawSVGPlugin);
 
   // Idle/looping animations should only run while their section is on screen.
   // Pass the section element and the looping tween(s): they play on enter and
@@ -189,7 +187,8 @@
     runCurtain(runIntro);
   }
 
-  // wait for fonts so SplitText measures the real glyphs
+  // wait for fonts so the title behind the curtain is measured/painted with the
+  // real glyphs before the drape lifts (the swap is never visible)
   if (document.fonts && document.fonts.ready) {
     document.fonts.ready.then(startOpening);
   } else {
@@ -941,7 +940,7 @@
   })();
 
   /* ------------------------------------------------------------------ */
-  /* Generic scene line reveals + optional DrawSVG trace-on             */
+  /* Generic scene line reveals (fade + rise, once, on enter)           */
   /* ------------------------------------------------------------------ */
   gsap.utils.toArray('[data-scene-line], [data-intertitle]').forEach((line) => {
     // reduced motion: keep the comprehension cue (a plain fade), drop the
@@ -964,29 +963,6 @@
       scrollTrigger: { trigger: line, start: 'top 80%', once: true },
     });
   });
-
-  // When traced paths (marked data-draw) are added to a scene, they draw on scroll.
-  if (hasDraw) {
-    gsap.utils.toArray('.scene, .persona').forEach((scene) => {
-      const paths = scene.querySelectorAll('[data-draw]');
-      if (!paths.length) return;
-      gsap.fromTo(
-        paths,
-        { drawSVG: '0%' },
-        {
-          drawSVG: '100%',
-          ease: 'none',
-          stagger: 0.08,
-          scrollTrigger: {
-            trigger: scene,
-            start: 'top 70%',
-            end: 'center center',
-            scrub: true,
-          },
-        },
-      );
-    });
-  }
 
   /* ------------------------------------------------------------------ */
   /* Data-driven scene motion: [data-anim="zoom-out" | "push-in"]       */
@@ -1113,7 +1089,7 @@
   }
 
   /* ------------------------------------------------------------------ */
-  /* 7. Credits crawl + premiere reveal                                 */
+  /* Credits crawl                                                      */
   /* ------------------------------------------------------------------ */
   const crawlInner = document.getElementById('crawlInner');
   if (crawlInner) {
@@ -1132,29 +1108,6 @@
         },
       },
     );
-  }
-
-  const premiere = document.getElementById('premiere');
-  if (premiere) {
-    gsap.from(premiere.children, {
-      opacity: 0,
-      y: 40,
-      duration: 0.9,
-      stagger: 0.12,
-      ease: 'power3.out',
-      scrollTrigger: { trigger: premiere, start: 'top 65%', once: true },
-    });
-  }
-
-  /* ------------------------------------------------------------------ */
-  /* "Från början" — smooth-scroll back to the title                    */
-  /* ------------------------------------------------------------------ */
-  const restart = document.getElementById('restart');
-  if (restart) {
-    restart.addEventListener('click', (e) => {
-      e.preventDefault();
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    });
   }
 
   /* ------------------------------------------------------------------ */
