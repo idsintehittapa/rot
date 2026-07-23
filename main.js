@@ -1256,10 +1256,7 @@
   /* ------------------------------------------------------------------ */
   /* Score — one continuous piano track under the whole piece, toggled   */
   /* on by the viewer (a user gesture, so autoplay policy is satisfied)  */
-  /* and looping. Mood anchors: any section tagged [data-score-at="secs"]*/
-  /* seeks the track to that moment as it scrolls in, so a chosen musical */
-  /* passage lands on a chosen scene. The seek is masked by a quick       */
-  /* volume dip + rise so the jump isn't jarring (fine for ambient piano).*/
+  /* and looping.                                                        */
   /* ------------------------------------------------------------------ */
   const soundToggle = document.getElementById('soundToggle');
   const score = document.getElementById('score');
@@ -1310,28 +1307,6 @@
       } else {
         fadeTo(0, 0.6, () => score.pause());
       }
-    });
-
-    // mood anchors — seek to a musical moment as a scene arrives (scroll down)
-    gsap.utils.toArray('[data-score-at]').forEach((sec) => {
-      const at = parseFloat(sec.dataset.scoreAt);
-      if (Number.isNaN(at)) return;
-      ScrollTrigger.create({
-        trigger: sec,
-        start: 'top 60%',
-        onEnter: () => {
-          if (!soundOn) return;
-          // dip, seek, rise — a soft crossfade over the jump in the track
-          fadeTo(0, 0.35, () => {
-            try {
-              score.currentTime = at;
-            } catch (e) {
-              /* seek not ready — ignore */
-            }
-            fadeTo(FULL, 0.7);
-          });
-        },
-      });
     });
   }
 
